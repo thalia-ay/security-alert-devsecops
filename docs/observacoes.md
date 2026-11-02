@@ -91,11 +91,19 @@ O ZAP **não** reportou problemas de cookie (Secure/HttpOnly), anti-clickjacking
 | **Deploy real não executado** (`Deploy executado: false`, URL não configurada). O secret `RENDER_DEPLOY_HOOK_URL` não existe. | `relatorio-08-producao/deploy-producao.md` | Configurar o provedor de nuvem e o secret |
 
 ### 3.7 Execução bloqueada por quality gate (demonstração)
-> [a preencher]. Sugestão:
-> 1. Criar a branch `teste/quality-gate` com um segredo **fictício**, por exemplo uma chave AWS de exemplo da documentação, ou com uma dependência vulnerável fixada de propósito (ex.: `jinja2==2.10`).
-> 2. Fazer o push e registrar aqui o link da execução que falhou na etapa 1 ou 4.
-> 3. Registrar a correção e a execução seguinte, já verde.
-> 4. **Nunca** fazer merge dessa branch na `main`.
+| Item | Valor |
+|---|---|
+| Branch de teste | `teste-quality-gate` (nunca mesclada na `main`) |
+| Commit | `ee26e3e`: adiciona `src/config_teste.py` com a linha `PAYMENT_API_KEY = "..."`, um valor **fictício** de alta entropia que não pertence a nenhum serviço |
+| Execução | [#8](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41527602124): **failure** |
+| Etapa que bloqueou | 1 – Secrets (Gitleaks): `leaks found: 1`, exit code 1 |
+| Achado (`gitleaks.json`) | `RuleID: generic-api-key`, `File: src/config_teste.py`, `StartLine: 3`, `Entropy: 5.09`, segredo exibido como `REDACTED` |
+| Etapas 2 a 8 | `skipped`: nenhuma imagem foi publicada e nada foi para homologação ou produção |
+| Resumo da Esteira | executou (`if: always()`) e registrou a falha |
+
+**Efeito colateral observado (lição aprendida):** a execução #6 da `main` (commit `16db8eb`, que só alterava os RMs no README) também falhou na etapa 1, com o mesmo achado. O motivo foi este: com `fetch-depth: 0`, o checkout traz todas as branches, e `gitleaks git .` varre o histórico de **todas** as refs. Por isso a branch de teste, que existia naquele momento, contaminou a varredura da `main`. Esse comportamento é conservador: um segredo commitado em qualquer branch do repositório público já está exposto. A correção foi apagar a branch de teste depois de registrar a evidência. Em um segredo real, o procedimento seria revogar a credencial **antes** de qualquer limpeza.
+
+**Correção:** a branch `teste-quality-gate` foi apagada, e a execução seguinte da `main` deve voltar a passar na etapa 1. O resultado dessa execução precisa ser conferido no Actions.
 
 ---
 
