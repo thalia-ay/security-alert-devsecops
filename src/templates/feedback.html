@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Resultado - Security Alert{% endblock %}
+{% block content %}
+<div class="feedback-page">
+    <div class="feedback-hero feedback-{{ feedback_level }}">
+        <img src="{{ url_for('static', filename=feedback_image) }}" alt="" class="feedback-big-emoji" style="width:80px;height:80px;object-fit:contain;display:block;margin:0 auto 12px;">
+        <h1>Treinamento Concluido!</h1>
+        <div class="feedback-score-circle">
+            <svg viewBox="0 0 140 140" class="score-ring">
+                <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="10"/>
+                <circle cx="70" cy="70" r="60" fill="none" stroke="white" stroke-width="10"
+                        stroke-dasharray="{{ percentage * 3.77 }} 377"
+                        stroke-linecap="round" transform="rotate(-90 70 70)"/>
+            </svg>
+            <div class="score-inner">
+                <span class="score-big">{{ score }}</span>
+                <span class="score-max">/ {{ max_score }}</span>
+            </div>
+        </div>
+        <p class="feedback-percent">{{ "%.0f"|format(percentage) }}% de aproveitamento</p>
+    </div>
+
+    <div class="feedback-message feedback-{{ feedback_level }}-msg">
+        <p>{{ feedback_msg }}</p>
+    </div>
+
+    <div class="feedback-details">
+        <h2>Detalhamento por Fase</h2>
+        <div class="phase-results">
+            {% for pd in phase_details %}
+            <div class="phase-result-card">
+                <div class="phase-result-header">
+                    {% if pd.badge_icon %}
+                    <img src="{{ url_for('static', filename=pd.badge_icon) }}" alt="" class="phase-result-icon" style="width:32px;height:32px;object-fit:contain;">
+                    {% else %}
+                    <span class="phase-result-icon">{{ pd.icon }}</span>
+                    {% endif %}
+                    <div>
+                        <strong>{{ pd.title }}</strong>
+                        <span class="phase-result-score">{{ pd.correct }}/{{ pd.total }} acertos</span>
+                    </div>
+                    <div class="phase-result-bar-bg">
+                        <div class="phase-result-bar" style="width: {{ pd.percentage }}%;
+                            background: {% if pd.percentage >= 70 %}#27ae60{% elif pd.percentage >= 40 %}#f39c12{% else %}#e74c3c{% endif %}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="feedback-actions">
+        <a href="{{ url_for('certificado', game_id=game_id) }}" class="btn btn-success btn-lg">Baixar Certificado</a>
+        <a href="{{ url_for('game_start') }}" class="btn btn-outline btn-lg">Jogar Novamente</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline btn-lg">Voltar ao Dashboard</a>
+    </div>
+</div>
+{% endblock %}

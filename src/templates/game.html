@@ -1,0 +1,1521 @@
+{% extends "base.html" %}
+{% block title %}{{ phase_data.title }} - Security Alert{% endblock %}
+{% block content %}
+{# Personagem escolhido pelo jogador (canto da tela) #}
+<div class="player-avatar" title="{{ player_char.name }}">
+    <img src="{{ url_for('static', filename=player_char.sprite) }}"
+         alt="{{ player_char.name }}" class="player-avatar-sprite">
+    <span class="player-avatar-name">{{ player_char.name }}</span>
+</div>
+
+<div class="game-container {% if phase_data.classify %}classify-phase{% endif %}">
+    {# Barra de progresso (clicaveis para pular de fase, util em demonstracoes) #}
+    <div class="game-progress">
+        {% for p in range(1, total_phases + 1) %}
+        <a href="{{ url_for('game_play', game_id=game.id, phase=p, sub=1) }}"
+           class="progress-phase {% if p < phase %}completed{% elif p == phase %}active{% endif %}"
+           title="Ir para Fase {{ p }}">
+            <span class="progress-icon">
+                {% if p == 1 %}
+                    <img src="{{ url_for('static', filename='img/badges/chave.png') }}" alt="Fase 1">
+                {% elif p == 2 %}
+                    <img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="Fase 2">
+                {% elif p == 3 %}
+                    <img src="{{ url_for('static', filename='img/badges/phishing.png') }}" alt="Fase 3">
+                {% elif p == 4 %}
+                    <img src="{{ url_for('static', filename='img/badges/engrenagem.png') }}" alt="Fase 4">
+                {% elif p == 5 %}
+                    <img src="{{ url_for('static', filename='img/badges/celular.png') }}" alt="Fase 5">
+                {% elif p == 6 %}
+                    <img src="{{ url_for('static', filename='img/badges/robo.png') }}" alt="Fase 6">
+                {% endif %}
+            </span>
+            <span class="progress-label">Fase {{ p }}</span>
+        </a>
+        {% if not loop.last %}
+        <div class="progress-line {% if loop.index < phase %}completed{% endif %}"></div>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {# Indicador de sub-fase (clicavel para pular entre subfases, util pra demonstracao).
+       Cores:
+         - current: sub em que o jogador esta agora (azul com glow)
+         - done:    sub ja respondida (rosa)
+         - (nenhuma): sub ainda nao respondida (cinza) #}
+    <div class="subphase-indicator">
+        {% for s in range(1, total_subs_in_phase + 1) %}
+        {% if s == sub %}
+        <a href="{{ url_for('game_play', game_id=game.id, phase=phase, sub=s) }}"
+           class="subphase-dot current"
+           title="Questao {{ s }}/{{ total_subs_in_phase }} (atual)"
+           aria-label="Questao atual: {{ s }} de {{ total_subs_in_phase }}"></a>
+        {% elif s in answered_subs %}
+        <a href="{{ url_for('game_play', game_id=game.id, phase=phase, sub=s) }}"
+           class="subphase-dot done"
+           title="Questao {{ s }}/{{ total_subs_in_phase }} (respondida)"
+           aria-label="Questao respondida: {{ s }} de {{ total_subs_in_phase }}"></a>
+        {% else %}
+        <a href="{{ url_for('game_play', game_id=game.id, phase=phase, sub=s) }}"
+           class="subphase-dot"
+           title="Questao {{ s }}/{{ total_subs_in_phase }}"
+           aria-label="Ir para Questao {{ s }} de {{ total_subs_in_phase }}"></a>
+        {% endif %}
+        {% endfor %}
+    </div>
+
+    {# Conteudo principal #}
+    <div class="game-main">
+        {% if sub == 1 and not already_answered %}
+        {# Tela de anúncio da fase #}
+        <div class="phase-intro" style="border-color: {{ phase_data.color }}">
+            <div class="phase-intro-boss">
+                <img src="{{ url_for('static', filename='img/carlosviradoesquerda.png') }}"
+                alt="Chefe Carlos"
+                class="boss-character">
+                <div class="boss-info">
+                    <span class="boss-label">{{ phase_data.boss_name }}</span>
+                    <span class="boss-title">Seu Chefe & Mentor</span>
+                </div>
+            </div>
+            <div class="phase-intro-content">
+                <span class="phase-badge" style="background: {{ phase_data.color }}">
+                    {% if phase == 1 %}
+                        <img src="{{ url_for('static', filename='img/badges/chave.png') }}" alt="" class="phase-badge-icon">
+                    {% elif phase == 2 %}
+                        <img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" class="phase-badge-icon">
+                    {% elif phase == 3 %}
+                        <img src="{{ url_for('static', filename='img/badges/phishing.png') }}" alt="" class="phase-badge-icon">
+                    {% elif phase == 4 %}
+                        <img src="{{ url_for('static', filename='img/badges/engrenagem.png') }}" alt="" class="phase-badge-icon">
+                    {% elif phase == 5 %}
+                        <img src="{{ url_for('static', filename='img/badges/celular.png') }}" alt="" class="phase-badge-icon">
+                    {% elif phase == 6 %}
+                        <img src="{{ url_for('static', filename='img/badges/robo.png') }}" alt="" class="phase-badge-icon">
+                    {% else %}
+                        {{ phase_data.icon }}
+                    {% endif %}
+                    {{ phase_data.title }}
+                </span>
+
+                {# FALA DO CHEFE (apenas texto rolando, sem balao) #}
+                <div class="boss-speech">
+                    <span class="boss-speech-name">{{ phase_data.boss_name }}:</span>
+                    <span class="boss-speech-text" data-text="{{ phase_data.explanation }}"></span>
+                </div>
+
+                {# ═══════ FASE 1: CONSTRUTOR DE SENHA (primeira subfase) ═══════ #}
+                {% if phase == 1 %}
+                <div class="phase1-inline">
+                    <a href="#phase1-builder" class="btn btn-primary btn-lg" id="phase1-start-btn">
+                        🔐 Começar Fase — Construtor de Senha!
+                    </a>
+                </div>
+                {% else %}
+                <a href="#subphase-{{ sub }}" class="btn btn-primary btn-lg">Comecar Fase!</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Questao da sub-fase #}
+        <div id="subphase-{{ sub }}" class="subphase-card" style="border-left: 5px solid {{ phase_data.color }}">
+            <div class="subphase-header">
+                <span class="subphase-num">{% if phase_data.classify %}Documento {{ sub }}/{{ total_subs_in_phase }}{% else %}Questao {{ sub }}/{{ total_subs_in_phase }}{% endif %}</span>
+                <span class="subphase-points">
+                    {% if subphase_data.get('scorable') == False %}
+                        Educativo, sem pontos
+                    {% else %}
+                        Vale 100 pontos
+                    {% endif %}
+                </span>
+            </div>
+            {% if phase != 6 %}
+            <h2 class="subphase-title">{% if phase_data.classify %}Como você classifica este documento?{% else %}{{ subphase_data.title }}{% endif %}</h2>
+            {% endif %}
+
+            {% if already_answered %}
+            {# Ja respondeu - mostrar resultado e botao de continuar #}
+            {% if already_answered.timed_out %}
+            <div class="answer-result hacked-result">
+                <span class="result-emoji">💀</span>
+                <strong>{{ subphase_data.hacked_title or 'Você foi hackeado(a)' }}</strong>
+                <p>{{ subphase_data.hacked_text }}</p>
+            </div>
+            {% else %}
+            <div class="answer-result {% if already_answered.correct %}correct{% else %}wrong{% endif %}">
+                <span class="result-emoji">{% if already_answered.correct %}{% else %}❌{% endif %}</span>
+                <strong>{% if already_answered.correct %}Voce acertou!{% else %}Voce errou...{% endif %}</strong>
+                {% if already_answered.correct %}
+                <p>{{ subphase_data.explanation_correct }}</p>
+                {% else %}
+                <p>{{ subphase_data.explanation_wrong }}</p>
+                {% endif %}
+            </div>
+            {% endif %}
+            {% set next_sub = sub + 1 %}
+            {% set next_phase = phase %}
+            {% if next_sub > total_subs_in_phase %}
+                {% set next_phase = phase + 1 %}
+                {% set next_sub = 1 %}
+            {% endif %}
+            {% if next_phase <= total_phases %}
+            <a href="{{ url_for('game_play', game_id=game.id, phase=next_phase, sub=next_sub) }}" class="btn btn-primary btn-block mt-4">
+                {% if next_sub == 1 and next_phase != phase %}
+                Ir para Fase {{ next_phase }} →
+                {% elif phase_data.classify %}
+                Continuar
+                {% else %}
+                Proxima Questao →
+                {% endif %}
+            </a>
+            {% else %}
+            <a href="{{ url_for('game_feedback', game_id=game.id) }}" class="btn btn-success btn-block mt-4">
+                <img src="{{ url_for('static', filename='img/badges/trofeu.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"> Ver Resultado Final!
+            </a>
+            {% endif %}
+
+            {% else %}
+            {# ═══════ FASE 1: SUB 1=builder / SUB 2=teclado virtual / SUB 3=drag and drop ═══════ #}
+            {% if subphase_data.mode == 'password_builder' %}
+            {# ═══════ FASE 1 SUB 1: CONSTRUTOR DE SENHA COM DADOS (2 etapas) ═══════ #}
+            <div id="phase1-builder" class="phase1-container phase1-builder">
+                <div class="phase1-builder-header">
+                    <span class="phase1-builder-badge"><img src="{{ url_for('static', filename='img/badges/chave.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"></span>
+                    <div>
+                        <h2 class="phase1-builder-title">Construtor de Senha com Dados Públicos</h2>
+                        <p class="phase1-builder-subtitle">Descubra como seus dados viram senhas fracas</p>
+                    </div>
+                </div>
+
+                <div id="phase1-builder-step1" class="phase1-builder-step">
+                    <h3 class="phase1-step-title">Etapa 1: Dados que parecem inofensivos</h3>
+                    <p class="phase1-step-hint">Digite informações fictícias. Nenhum dado sai do seu navegador.</p>
+
+                    <form id="phase1-builder-form" class="phase1-builder-form">
+                        <label class="phase1-field">
+                            <span>Nome do seu pet (apenas letras)</span>
+                            <input type="text" name="pet" placeholder="ex: Thor" maxlength="40"
+                                   pattern="[A-Za-zÀ-ÿ\s]+" title="Apenas letras"
+                                   inputmode="text" autocomplete="off">
+                        </label>
+                        <label class="phase1-field">
+                            <span>Data de nascimento (apenas números)</span>
+                            <input type="text" name="dob" placeholder="ex: 15051998" maxlength="10"
+                                   pattern="[0-9]+" title="Apenas números (ex: DDMMAAAA)"
+                                   inputmode="numeric" autocomplete="off">
+                        </label>
+                        <label class="phase1-field">
+                            <span>Seu cantor(a)/banda favorito (apenas letras)</span>
+                            <input type="text" name="team" placeholder="ex: Anitta" maxlength="40"
+                                   pattern="[A-Za-zÀ-ÿ\s]+" title="Apenas letras"
+                                   inputmode="text" autocomplete="off">
+                        </label>
+                        <label class="phase1-field">
+                            <span>Cidade onde nasceu (apenas letras)</span>
+                            <input type="text" name="city" placeholder="ex: Curitiba" maxlength="40"
+                                   pattern="[A-Za-zÀ-ÿ\s]+" title="Apenas letras"
+                                   inputmode="text" autocomplete="off">
+                        </label>
+                        <label class="phase1-field">
+                            <span>Nome da sua mãe (apenas letras)</span>
+                            <input type="text" name="mother" placeholder="ex: Maria" maxlength="40"
+                                   pattern="[A-Za-zÀ-ÿ\s]+" title="Apenas letras"
+                                   inputmode="text" autocomplete="off">
+                        </label>
+
+                        <button type="submit" class="btn btn-primary btn-block phase1-builder-cta">
+                            Ver como um hacker usaria isso →
+                        </button>
+                    </form>
+                </div>
+
+                <div id="phase1-builder-step2" class="phase1-builder-step phase1-hidden">
+                    <h3 class="phase1-step-title">Etapa 2: O que um hacker tentaria</h3>
+                    <p class="phase1-step-hint">Com base nos seus dados, essas são senhas fracas que alguém poderia adivinhar.</p>
+
+                    <div class="phase1-weak-list">
+                        <div class="phase1-weak-list-header">
+                            <span class="phase1-weak-icon">⚠️</span>
+                            <span>Tentativas de senha detectadas</span>
+                        </div>
+                        <ul id="phase1-weak-passwords" class="phase1-weak-items"></ul>
+                    </div>
+
+                    <div class="phase1-danger-box">
+                        <strong>Por que isso é perigoso?</strong>
+                        Dados pessoais vazam em redes sociais, vazamentos de dados e conversas cotidianas.
+                        Quem te conhece um pouco consegue montar essas senhas em minutos.
+                    </div>
+
+                    <div class="phase1-builder-actions">
+                        <button type="button" id="phase1-builder-back" class="btn btn-danger">← Voltar</button>
+                        <button type="button" id="phase1-builder-continue" class="btn btn-primary">
+                            Continuar →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                window.PHASE1_SUB3_SAVE_DATA_URL = "{{ url_for('phase1_sub3_save_data', game_id=game.id) }}";
+                window.PHASE1_SUB3_SUBMIT_URL = "{{ url_for('phase1_sub3_submit', game_id=game.id) }}";
+            </script>
+
+            {% elif subphase_data.mode == 'password_dnd' %}
+            {# ═══════ FASE 1 SUB 3: CLASSIFICAR SENHAS (drag and drop) ═══════ #}
+            <div id="phase2-game" class="phase2-container">
+                <h2 class="phase2-title"><img src="{{ url_for('static', filename='img/badges/chave.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"> Classifique as Senhas</h2>
+
+                {# ═══════ FALA DO CHEFE (typewriter, reaproveita .boss-speech) ═══════ #}
+                <div class="boss-speech phase2-game-boss">
+                    <span class="boss-speech-name">Chefe Carlos:</span>
+                    <span class="boss-speech-text" data-text="Agora que você aprendeu a criar uma senha forte, é hora de colocar a vista para identificar senhas fracas e difíceis! Abaixo, senhas vão aparecer, algumas fáceis de adivinhar, outras bem mais complicadas. Arraste cada cartão para a coluna correta: a esquerda, as senhas fáceis (curtas, óbvias ou com dados pessoais); a direita, as senhas difíceis (longas, com símbolos e bem variadas). Confie no que você aprendeu até aqui!"></span>
+                </div>
+
+                <p class="phase2-instructions">
+                    Arraste cada cartão para a coluna correta: <strong><img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"> Senha Fácil</strong>
+                    (fraca, fácil de adivinhar) ou <strong><img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"> Senha Difícil</strong>
+                    (forte, bem protegida).
+                </p>
+
+                {# Bloco ACERTOS / PONTOS escondido em ago/2026 a pedido da Duda — visual poluido #}
+                {# {% if false %}
+                <div class="phase2-stats">
+                    <span class="phase2-stat">
+                        <span class="phase2-stat-label">Acertos</span>
+                        <span id="phase2-correct" class="phase2-stat-value">0/8</span>
+                    </span>
+                    <span class="phase2-stat">
+                        <span class="phase2-stat-label">Pontos</span>
+                        <span id="phase2-score" class="phase2-stat-value">0</span>
+                    </span>
+                </div>
+                {% endif %} #}
+
+                <div id="phase2-pool" class="phase2-pool" aria-label="Cartões disponíveis">
+                    {# cards sao gerados via JS pra ficar randomizado #}
+                </div>
+
+                <div class="phase2-columns">
+                    <div class="phase2-column phase2-col-easy" data-target="easy">
+                        <div class="phase2-column-header">
+                            <span class="phase2-column-icon"><img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"></span>
+                            <span class="phase2-column-title">Senha Fácil</span>
+                            <span class="phase2-column-hint">curtas, óbvias ou pessoais</span>
+                        </div>
+                        <div class="phase2-dropzone" data-zone="easy"></div>
+                    </div>
+                    <div class="phase2-column phase2-col-hard" data-target="hard">
+                        <div class="phase2-column-header">
+                            <span class="phase2-column-icon"><img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"></span>
+                            <span class="phase2-column-title">Senha Difícil</span>
+                            <span class="phase2-column-hint">longas, com símbolos e variadas</span>
+                        </div>
+                        <div class="phase2-dropzone" data-zone="hard"></div>
+                    </div>
+                </div>
+
+                <div id="phase2-final" class="phase2-gameover hidden">
+                    <h3> Pronto!</h3>
+                    {# <p id="phase2-final-score"></p> escondido em ago/2026 — texto de pontuacao removido #}
+                    <a href="#" id="phase2-next" class="btn btn-success">Próxima Fase →</a>
+                </div>
+
+                <script>
+                    window.PHASE2_SUBMIT_URL = "{{ url_for('phase1_sub2_submit', game_id=game.id) }}";
+                </script>
+            </div>
+
+            {% elif phase == 1 and sub == 2 %}
+            {# ═══════ FASE 1 SUB 2: TECLADO VIRTUAL ═══════ #}
+            <div id="phase1-keyboard" class="phase1-container">
+                <h2 class="phase1-title"><img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"> Cofre Digital — Crie sua senha</h2>
+
+                {# ═══════ FALA DO CHEFE (typewriter, reaproveita .boss-speech da sub 1) ═══════ #}
+                <div class="boss-speech phase1-keyboard-boss">
+                    <span class="boss-speech-name">Chefe Carlos:</span>
+                    <span class="boss-speech-text" data-text="Agora que você entendeu como seus dados públicos e com significado podem virar senhas fracas, monte uma senha forte com os requisitos abaixo! Quanto maior e mais imprevisível, mais tempo um atacante levará para quebrá-la. O medidor em tempo real te mostra a força da senha enquanto você digita."></span>
+                </div>
+
+                <div class="phase1-display">
+                    <span id="password-display" class="phase1-password">••••••••</span>
+                    <button type="button" id="toggle-visibility" class="phase1-eye" title="Mostrar/Ocultar">👁️</button>
+                </div>
+
+                <div class="phase1-strength">
+                    <div class="strength-track">
+                        <div id="strength-fill" class="strength-fill" style="width: 0%; background: #94a3b8;"></div>
+                    </div>
+                    <div class="strength-info">
+                        <span id="strength-text">Digite uma senha...</span>
+                        <span id="strength-percent">0%</span>
+                    </div>
+                </div>
+
+                <div class="phase1-crack">
+                    <span>⏱️ Tempo pra quebrar:</span>
+                    <strong id="crack-time">—</strong>
+                </div>
+
+                <ul id="phase1-criteria" class="phase1-criteria"></ul>
+
+                <div class="phase1-keyboard" id="phase1-keyboard-area"></div>
+
+                <div class="phase1-actions">
+                    <button type="button" id="phase1-clear" class="btn btn-danger">🗑 Apagar tudo</button>
+                    <button type="button" id="phase1-submit" class="btn btn-primary" disabled>
+                        Crie uma senha forte para continuar
+                    </button>
+                </div>
+
+                <div id="phase1-result" class="phase1-result hidden">
+                    <h2 id="phase1-result-title"></h2>
+                    <p id="phase1-result-text"></p>
+                    <div class="phase1-result-actions">
+                        <button type="button" id="phase1-retry" class="btn btn-secondary">
+                            🔄 Tentar outra senha
+                        </button>
+                        <a id="phase1-next-btn" href="#" class="btn btn-primary">Próxima Fase →</a>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                window.PHASE1_SUBMIT_URL = "{{ url_for('phase1_submit', game_id=game.id) }}";
+            </script>
+
+            {% else %}
+            {# Pergunta ativa (Fase 2 = classificar documentos / Fases 3, 4, 5) #}
+            {% if subphase_data.timer_seconds %}
+            {# Questao com tempo limite: ataque em andamento (Fase 5, Questao 9) #}
+            <div id="hack-overlay" aria-hidden="true"></div>
+            <div class="hack-timer" id="hack-timer">
+                <span class="hack-timer-icon">🚨</span>
+                <span class="hack-timer-label">AMEAÇA ATIVA DETECTADA! O malware está se espalhando... decida antes que o ataque se complete!</span>
+                <span class="hack-timer-count" id="hack-timer-count">{{ subphase_data.timer_seconds }}s</span>
+            </div>
+            {% endif %}
+
+            {% if phase_data.classify %}
+            {# ═══════ FASE 2: CLASSIFICAR DOCUMENTOS (Público / Interno / Confidencial) ═══════ #}
+            <div class="classify-layout">
+                <div class="file-card">
+                <div class="file-header">
+                    <span class="file-name">{{ subphase_data.title }}</span>
+                </div>
+                    <div class="file-content">{{ subphase_data.question }}</div>
+                </div>
+                <div class="classify-options" id="options-list">
+                    {% for opt in subphase_data.options %}
+                    <button class="classify-btn option-btn {% if loop.index0 == 0 %}public{% elif loop.index0 == 1 %}internal{% else %}confidential{% endif %}"
+                            data-index="{{ loop.index0 }}" onclick="submitAnswer({{ loop.index0 }})">
+                        <span class="classify-label">{{ opt }}</span>
+                        <span class="classify-desc">{{ phase_data.classification_labels[opt] }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            {% if phase == 6 %}
+            {# ═══════ FASE 6: FERRAMENTA DE IA — chat IA (somente visual) ═══════ #}
+            <div class="ai-sim">
+                <div class="ai-header"><img src="{{ url_for('static', filename='img/badges/robo.png') }}" alt="" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;object-fit:contain;">Assistente IA</div>
+                <div class="ai-body">
+                    <div class="ai-input-box">
+                        <span class="ai-input-text">{{ subphase_data.question }}<span class="ai-cursor" aria-hidden="true"></span></span>
+                        <span class="ai-send-icon" aria-hidden="true" title="">
+                            <!-- ícone de envio apenas visual — não substitui os botões -->
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <div class="ai-actions" id="options-list">
+                    {% for opt in subphase_data.options %}
+                    <button class="option-btn ai-option-btn" data-index="{{ loop.index0 }}" onclick="submitAnswer({{ loop.index0 }})">
+                        <span class="option-text">{{ opt }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <p class="subphase-question">{{ subphase_data.question }}</p>
+
+            {% if subphase_data.mode == 'sms_sim' %}
+            {# Simulação de SMS suspeito (Fase 3, Questao 2) #}
+            <div class="sms-phone">
+                <div class="sms-phone-header">
+                    <span class="sms-contact-avatar">🚨</span>
+                    <div class="sms-contact-info">
+                        <span class="sms-contact-name">Desconhecido</span>
+                        <span class="sms-contact-number">+55 11 99999-0000</span>
+                    </div>
+                    <span class="sms-phone-status">Hoje, 14:32</span>
+                </div>
+                <div class="sms-phone-body">
+                    <div class="sms-bubble">
+                        <p><span class="sms-bubble-attention">🛑 ALERTA DE SEGURANSA!!!</span></p>
+                        <p>
+                            LeroyMerlin: nossos sistemas forão invadidos e seus dados pessuais
+                            forão vazados na internet!
+                        </p>
+                        <p>
+                            CLICA AQUI pra verificar se sua conta está em risco:
+                            <span class="sms-link">bit.ly/l-m-vazou</span>
+                        </p>
+                        <p>
+                            <span class="sms-bubble-attention">⚠️ Isso e URGENTE!</span>
+                            Seu acesso pode ser bloqueado a qualquer momento.
+                            NÃO compartilhe essa mensagem com ninguém.
+                        </p>
+                        <span class="sms-bubble-time">14:32 ✓✓</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if subphase_data.mode == 'site_sim' %}
+            {# Simulação de site clonado da Leroy Merlin (Fase 3, Questao 3) #}
+            <div class="browser-sim">
+                <div class="browser-bar">
+                    <span class="browser-dots"><i></i><i></i><i></i></span>
+                    <div class="browser-url">
+                        <span class="browser-lock">⚠️</span>
+                        <span class="browser-address">https://leroymerlin-seguranca.com</span>
+                    </div>
+                </div>
+                <div class="browser-page">
+                    <div class="site-header">
+                        <span class="site-logo">🛠️ LeroyMerlin</span>
+                        <span class="site-nav">Ofertas · Departamentos · Conta</span>
+                    </div>
+                    <div class="site-banner">
+                        <span class="site-banner-title">🔥 PROMOÇÃO IMPERDIVEL: 90% DE DESCONTO!!!</span>
+                        <span class="site-banner-sub">Ative seu cupom agora antes que acabe!</span>
+                    </div>
+                    <div class="site-login">
+                        <span class="site-login-title">Acesse sua conta para ativar o cupom:</span>
+                        <label>E-mail ou CPF:</label>
+                        <div class="site-input">digite aqui seu e-mail</div>
+                        <label>Senha:</label>
+                        <div class="site-input">digite sua senha</div>
+                        <div class="site-btn">ENTRAR AGORA</div>
+                    </div>
+                    <div class="site-warning">⚠️ Este site não é seguro (certificado inválido)</div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if subphase_data.mode == 'call_sim' %}
+            {# Simulação de ligação do farsante (Fase 4) #}
+            <div class="call-phone">
+                <div class="call-screen">
+                    <span class="call-avatar">📞</span>
+                    <span class="call-name">"Setor de Segurança"</span>
+                    <span class="call-number">Número privado · +55 11 9XXXX-XXXX</span>
+                    <span class="call-tag">CHAMADA RECEBIDA · HOJE, 13:05</span>
+                    <div class="call-transcript">
+                        <div class="call-bubble">
+                            "Olá! Aqui é o setor de segurança da Leroy Merlin. Detectamos um acesso
+                            suspeito na sua conta. Para confirmar sua identidade, me diga seu CPF
+                            completo e a data da sua admissão."
+                        </div>
+                        <div class="call-bubble">
+                            "É urgente! Se você não confirmar agora, seu acesso será bloqueado
+                            imediatamente!"
+                        </div>
+                    </div>
+                    <div class="call-controls">
+                        <button class="call-btn call-decline" disabled>✕</button>
+                        <button class="call-btn call-accept" disabled>✆</button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if subphase_data.mode == 'email_compare' %}
+            {# Caixa de entrada estilo Gmail: dois e-mails, um abaixo do outro #}
+            <div id="options-list">
+                <div class="gmail-inbox">
+                    <div class="gmail-inbox-header">
+                        <span class="gmail-inbox-icon">📬</span>
+                        <span class="gmail-inbox-title">Caixa de entrada</span>
+                        <span class="gmail-inbox-count">2 não lidos</span>
+                    </div>
+
+                    <div class="gmail-list">
+                        {% for email in subphase_data.emails %}
+                        <div class="gmail-row {% if email.is_fake %}unread{% endif %}"
+                             data-email="{{ loop.index0 }}" onclick="toggleEmail({{ loop.index0 }})">
+                            <span class="gmail-avatar">{{ email.from_name[:1] }}</span>
+                            <div class="gmail-row-main">
+                                <span class="gmail-row-sender">{{ email.from_name }}</span>
+                                <span class="gmail-row-subject">{{ email.subject }}</span>
+                                <span class="gmail-row-preview">{{ email.body[0] }}</span>
+                            </div>
+                            <span class="gmail-row-time">{{ email.time }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    {% for email in subphase_data.emails %}
+                    <div class="gmail-message" id="gmail-message-{{ loop.index0 }}">
+                        <div class="gmail-message-top">
+                            <span class="gmail-avatar gmail-avatar-lg">{{ email.from_name[:1] }}</span>
+                            <div class="gmail-message-sender-block">
+                                <span class="gmail-message-sender">{{ email.from_name }}</span>
+                                <span class="gmail-message-email">&lt;{{ email.from_email }}&gt;</span>
+                            </div>
+                            <span class="gmail-message-time">{{ email.time }}</span>
+                        </div>
+                        <div class="gmail-message-subject">{{ email.subject }}</div>
+
+                        <div class="gmail-meta">
+                            <div class="gmail-meta-row">
+                                <span class="gmail-meta-label">De:</span>
+                                {{ email.from_name }} &lt;{{ email.from_email }}&gt;
+                            </div>
+                            <div class="gmail-meta-row">
+                                <span class="gmail-meta-label">Para:</span>
+                                {{ user_email }}
+                            </div>
+                        </div>
+
+                        <div class="gmail-message-body">
+                            {% for para in email.body %}
+                            <p>{{ para }}</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="gmail-actions">
+                            <button class="option-btn email-report-btn" onclick="submitAnswer({{ loop.index0 }})">
+                                🚩 Reportar como phishing
+                            </button>
+                            <button class="gmail-action-btn" onclick="toggleEmail({{ loop.index0 }})">🗑️ Excluir</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="options-list" id="options-list">
+                {% for opt in subphase_data.options %}
+                <button class="option-btn" data-index="{{ loop.index0 }}"
+                        onclick="submitAnswer({{ loop.index0 }})">
+                    <span class="option-letter">{{ ['A','B','C','D'][loop.index0] }}</span>
+                    <span class="option-text">{{ opt }}</span>
+                </button>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endif %}{# fim else phase==6 #}
+            {% endif %}{# fim if classify #}
+
+            {# Area de feedback (escondida ate responder) #}
+            <div id="answer-feedback" class="answer-result" style="display: none;">
+                <span id="feedback-emoji" class="result-emoji"></span>
+                <strong id="feedback-title"></strong>
+                <p id="feedback-text"></p>
+                <a id="feedback-next" href="#" class="btn btn-primary btn-block mt-4">Proxima Questao →</a>
+            </div>
+            {% endif %}{# fim if phase == 1 #}
+            {% endif %}{# fim if already_answered #}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/characters.js') }}"></script>
+<script>
+// Injetar personagem Chefe Carlos
+document.addEventListener('DOMContentLoaded', function() {
+    const bossDiv = document.getElementById('boss-char');
+    if (bossDiv) bossDiv.innerHTML = Characters.boss;
+
+    // ===== TYPEWRITER NA FALA DO CHEFE (sub 1 + qualquer outra sub com .boss-speech-text) =====
+    const msgEls = document.querySelectorAll('.boss-speech-text[data-text]');
+    msgEls.forEach((msgEl) => {
+        const fullText = msgEl.dataset.text;
+        msgEl.textContent = '';
+        let i = 0;
+        const speed = 35;  // ms por letra (menor = mais rapido)
+
+        function typeChar() {
+            if (i < fullText.length) {
+                msgEl.textContent += fullText[i];
+                i++;
+                setTimeout(typeChar, speed);
+            } else {
+                msgEl.classList.add('done');
+            }
+        }
+        typeChar();
+    });
+});
+
+// ===== QUESTAO COM TEMPO LIMITE (Fase 5, Questao 9) =====
+const TIMED_CFG = {
+    seconds: {{ subphase_data.timer_seconds or 0 }},
+    hackedTitle: {{ (subphase_data.hacked_title or 'Você foi hackeado(a)')|tojson }},
+    hackedText: {{ (subphase_data.hacked_text or '')|tojson }},
+    savedTitle: {{ (subphase_data.saved_title or 'Você salvou a empresa.')|tojson }}
+};
+
+let hackTimerId = null;
+let hackAnswered = false;
+let hackDeadline = null;
+
+function startHackTick() {
+    if (hackTimerId) clearInterval(hackTimerId);
+    const countEl = document.getElementById('hack-timer-count');
+    const overlay = document.getElementById('hack-overlay');
+    const box = document.getElementById('hack-timer');
+
+    hackTimerId = setInterval(function () {
+        if (!overlay) { stopHackTimer(false); return; }
+        const remainingMs = Math.max(0, hackDeadline - Date.now());
+        const progress = Math.min(1, 1 - remainingMs / (TIMED_CFG.seconds * 1000));
+
+        // A tela fica vermelha aos poucos conforme o tempo passa
+        overlay.style.opacity = (progress * 0.85).toFixed(3);
+        if (progress > 0.12) document.body.classList.add('under-attack');
+        if (box) box.classList.toggle('danger', remainingMs <= 10000);
+        if (countEl) countEl.textContent = Math.ceil(remainingMs / 1000) + 's';
+
+        if (remainingMs <= 0) {
+            stopHackTimer(false);
+            triggerHacked();
+        }
+    }, 100);
+}
+
+function startHackTimer() {
+    const box = document.getElementById('hack-timer');
+    if (!box || TIMED_CFG.seconds <= 0) return;
+    hackDeadline = Date.now() + TIMED_CFG.seconds * 1000;
+    startHackTick();
+}
+
+function stopHackTimer() {
+    if (hackTimerId) { clearInterval(hackTimerId); hackTimerId = null; }
+}
+
+function hideHackTimer() {
+    stopHackTimer();
+    const box = document.getElementById('hack-timer');
+    if (box) box.style.display = 'none';
+}
+
+function fadeOutOverlay() {
+    const overlay = document.getElementById('hack-overlay');
+    if (!overlay) return;
+    overlay.style.transition = 'opacity .6s ease';
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 700);
+    document.body.classList.remove('under-attack');
+}
+
+function lockOptions() {
+    document.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = true;
+        b.style.pointerEvents = 'none';
+    });
+}
+
+function showFeedbackBox(className, emojiText, titleText, bodyText, nextUrl, finalFlag, nextLabel) {
+    const feedback = document.getElementById('answer-feedback');
+    document.getElementById('feedback-emoji').textContent = emojiText;
+    document.getElementById('feedback-title').textContent = titleText;
+    document.getElementById('feedback-text').textContent = bodyText;
+
+    const next = document.getElementById('feedback-next');
+    next.href = nextUrl;
+    next.classList.remove('btn-success');
+    next.textContent = 'Proxima Questao →';
+    if (finalFlag) {
+        next.textContent = ' Ver Resultado Final!';
+        next.classList.add('btn-success');
+    } else if (nextLabel) {
+        next.textContent = nextLabel;
+    }
+
+    feedback.className = 'answer-result ' + className;
+    feedback.style.display = 'block';
+
+    const list = document.getElementById('options-list');
+    if (list) list.style.display = 'none';
+
+    feedback.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Tempo esgotado: o jogador foi hackeado e perde os pontos da fase
+function triggerHacked() {
+    if (hackAnswered) return;
+    hackAnswered = true;
+    lockOptions();
+    hideHackTimer();
+
+    const formData = new FormData();
+    formData.append('phase', '{{ phase }}');
+    formData.append('sub', '{{ sub }}');
+
+    fetch("{{ url_for('game_hacked', game_id=game.id) }}", { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(data => {
+            // Mantem a tela vermelha pulsando (ambiente comprometido)
+            const overlay = document.getElementById('hack-overlay');
+            if (overlay) overlay.classList.add('hacked');
+            document.body.classList.add('hacked-state');
+            showFeedbackBox('wrong hacked-result', '💀', TIMED_CFG.hackedTitle,
+                data.points_lost > 0
+                    ? TIMED_CFG.hackedText + ' (-' + data.points_lost + ' pontos desta fase perdidos!)'
+                    : TIMED_CFG.hackedText,
+                data.next_url, data.is_final);
+        })
+        .catch(err => console.error('Erro:', err));
+}
+
+startHackTimer();
+
+function submitAnswer(answerIndex) {
+    if (hackAnswered) return;
+    hackAnswered = true;   // trava duplo clique e corrida com o timer
+    stopHackTimer();
+
+    // Suporta modo normal (options) e modo de comparacao de e-mails (Gmail)
+    const emailMode = !!document.querySelector('.gmail-message');
+    const items = emailMode
+        ? Array.from(document.querySelectorAll('.gmail-message'))
+        : Array.from(document.querySelectorAll('.option-btn'));
+    const buttons = emailMode
+        ? Array.from(document.querySelectorAll('.email-report-btn'))
+        : items;
+
+    buttons.forEach(b => b.disabled = true);
+    buttons.forEach(b => b.style.pointerEvents = 'none');
+    items.forEach(el => el.style.pointerEvents = 'none');
+
+    const correctIndex = {{ subphase_data.correct|default('undefined', true) }};
+
+    // Marcar visualmente
+    items.forEach((el, i) => {
+        if (i === correctIndex) {
+            el.classList.add('option-correct');
+        } else if (i === answerIndex && answerIndex !== correctIndex) {
+            el.classList.add('option-wrong');
+        }
+    });
+
+    // Enviar resposta
+    const formData = new FormData();
+    formData.append('phase', '{{ phase }}');
+    formData.append('sub', '{{ sub }}');
+    formData.append('answer', answerIndex);
+
+    fetch("{{ url_for('game_answer', game_id=game.id) }}", {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        const isTimedQuestion = TIMED_CFG.seconds > 0;
+
+        if (isTimedQuestion && data.correct) {
+            // Respondeu certo a tempo: mensagem verde esperancosa
+            fadeOutOverlay();
+            showFeedbackBox('saved', '', TIMED_CFG.savedTitle,
+                data.explanation, data.next_url, data.is_final);
+        } else {
+            if (isTimedQuestion) fadeOutOverlay();
+
+            // Fase 2 (classificar documentos): rotulos especificos no botao de avancar
+            const isClassify = {{ 'true' if phase_data.classify else 'false' }};
+            let nextLabel = null;
+            if (!data.is_final && isClassify) {
+                if (data.next_phase !== {{ phase }}) {
+                    nextLabel = 'Ir para Fase ' + data.next_phase + ' →';
+                } else if (data.correct) {
+                    nextLabel = 'Próximo Documento →';
+                } else {
+                    nextLabel = 'Continuar';
+                }
+            }
+
+            showFeedbackBox(data.correct ? 'correct' : 'wrong',
+                data.correct ? '' : '❌',
+                data.explanation_title,
+                data.explanation, data.next_url, data.is_final, nextLabel);
+        }
+    })
+    .catch(err => {
+        console.error('Erro:', err);
+        // Falhou a requisicao: devolve os botoes e retoma o tempo restante
+        hackAnswered = false;
+        buttons.forEach(b => {
+            b.disabled = false;
+            b.style.pointerEvents = 'auto';
+        });
+        items.forEach(el => el.style.pointerEvents = 'auto');
+        if (TIMED_CFG.seconds > 0 && hackDeadline && hackDeadline > Date.now()) {
+            startHackTick();
+        }
+    });
+}
+
+// Alternar abrir/fechar um e-mail (estilo Gmail)
+// Visibilidade e controlada pelo CSS: .gmail-message.open vira display:block.
+// Aqui alternamos a classe tanto na row (estilo ativo) quanto na message (display).
+function toggleEmail(index) {
+    const row = document.querySelector('.gmail-row[data-email="' + index + '"]');
+    const msg = document.getElementById('gmail-message-' + index);
+    if (!row || !msg) return;
+    const willOpen = !row.classList.contains('open');
+    row.classList.toggle('open', willOpen);
+    msg.classList.toggle('open', willOpen);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ═══════ FASE 1 — TECLADO VIRTUAL (in-page) ═══════
+// ═══════════════════════════════════════════════════════════════════════════
+
+(function initPhase1() {
+    // A Fase 1 pode renderizar o teclado virtual (sub 1),
+    // o construtor de senha (sub 3) ou ambos na tela de introducao.
+    const keyboardArea = document.getElementById('phase1-keyboard-area');
+    const builder = document.getElementById('phase1-builder');
+
+    // So sai se NENHUM dos dois mini-jogos da Fase 1 estiver presente
+    if (!keyboardArea && !builder) return;
+
+    const SUBMIT_URL = window.PHASE1_SUBMIT_URL;
+    const SAVE_DATA_URL = window.PHASE1_SUB3_SAVE_DATA_URL;
+    const SUB3_SUBMIT_URL = window.PHASE1_SUB3_SUBMIT_URL;
+
+    const requirements = [
+        { id: 'length',  label: ' Pelo menos 10 caracteres',     test: (p) => p.length >= 10 },
+        { id: 'number',  label: ' Pelo menos 1 número',          test: (p) => /\d/.test(p) },
+        { id: 'lower',   label: ' Pelo menos 1 letra minúscula',  test: (p) => /[a-z]/.test(p) },
+        { id: 'upper',   label: ' Pelo menos 1 letra maiúscula', test: (p) => /[A-Z]/.test(p) },
+        { id: 'special', label: ' Pelo menos 1 caractere especial', test: (p) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(p) }
+    ];
+
+    // Layout do teclado (todas as teclas com LETRAS e SÍMBOLOS visíveis)
+    const keyboardRows = [
+        ['1','2','3','4','5','6','7','8','9','0'],
+        ['q','w','e','r','t','y','u','i','o','p'],
+        ['a','s','d','f','g','h','j','k','l'],
+        ['z','x','c','v','b','n','m'],
+        ['!','@','#','$','%','&','*','?','_','-'],
+        ['Shift','Espaço','Backspace','Enter']
+    ];
+
+    let password = '';
+    let shiftActive = false;
+    let shown = false;
+
+    const $ = (s) => document.querySelector(s);
+
+    // Renderiza o teclado com letras/símbolos VISÍVEIS
+    function renderKeyboard() {
+        keyboardArea.innerHTML = keyboardRows.map((row, ri) =>
+            `<div class="phase1-row">` +
+            row.map(k => {
+                let label = k, value = k, cls = 'phase1-key';
+                if (k === 'Shift') {
+                    cls += shiftActive ? ' pressed active-shift wide' : ' wide';
+                    label = '⇧ Shift';
+                    value = 'Shift';
+                }
+                if (k === 'Espaço') { cls += ' extra-wide'; label = 'espaço'; value = ' '; }
+                if (k === 'Backspace') { cls += ' wide'; label = '⌫'; value = 'Backspace'; }
+                if (k === 'Enter') { cls += ' wide'; label = '⏎ Enter'; value = 'Enter'; }
+                const isLetter = k.length === 1 && /[a-z]/.test(k);
+                return `<button type="button" class="${cls}${isLetter ? ' phase1-letter' : ''}" data-key="${value}" data-base="${k}">${isLetter ? k.toUpperCase() : label}</button>`;
+            }).join('') +
+            `</div>`
+        ).join('');
+    }
+
+    function updateShift() {
+        const shiftBtn = keyboardArea.querySelector('.phase1-key[data-key="Shift"]');
+        if (shiftBtn) {
+            shiftBtn.classList.toggle('pressed', shiftActive);
+            shiftBtn.classList.toggle('active-shift', shiftActive);
+        }
+        keyboardArea.querySelectorAll('.phase1-letter').forEach(el => {
+            const base = el.dataset.base;
+            el.textContent = shiftActive ? base.toUpperCase() : base;
+        });
+    }
+
+    function getStrength(pwd) {
+        const passed = requirements.filter(r => r.test(pwd)).length;
+        if (passed <= 2) return 'weak';
+        if (passed <= 4) return 'medium';
+        return 'strong';
+    }
+
+    function updateUI() {
+        // Display da senha
+        const display = $('#password-display');
+        display.textContent = shown ? password : '•'.repeat(password.length);
+
+        // Critérios
+        const list = $('#phase1-criteria');
+        list.innerHTML = requirements.map(r => {
+            const ok = r.test(password);
+            return `<li class="phase1-criterion ${ok ? 'ok' : ''}" data-id="${r.id}">${r.label}</li>`;
+        }).join('');
+
+        // Barra de força
+        const passed = requirements.filter(r => r.test(password)).length;
+        const percent = Math.round((passed / 5) * 100);
+        const strength = getStrength(password);
+        const fill = $('#strength-fill');
+        fill.style.width = percent + '%';
+        fill.style.background =
+            strength === 'weak'   ? '#FF6B6B' :
+            strength === 'medium' ? '#FFC98A' : '#F29DBF';
+        $('#strength-text').textContent =
+            password.length === 0 ? 'Digite uma senha...' :
+            strength === 'weak'   ? '❌ Fraca' :
+            strength === 'medium' ? '⚠️ Média' : ' Forte';
+        $('#strength-text').style.color =
+            strength === 'weak'   ? '#FF6B6B' :
+            strength === 'medium' ? '#FFC98A' : '#F29DBF';
+        $('#strength-percent').textContent = percent + '%';
+
+        // Tempo pra quebrar
+        let time = '—';
+        if (password.length >= 16) time = 'séculos 🌌';
+        else if (password.length >= 12) time = 'séculos';
+        else if (password.length >= 10) time = 'anos';
+        else if (password.length >= 8) time = 'dias';
+        else if (password.length >= 6) time = 'horas';
+        else if (password.length >= 1) time = 'segundos';
+        $('#crack-time').textContent = time;
+
+        // Botão submit
+        const allPassed = requirements.every(r => r.test(password));
+        $('#phase1-submit').disabled = !allPassed;
+        $('#phase1-submit').textContent = allPassed
+            ? ' Senha forte! Enviar →'
+            : 'Crie uma senha forte para continuar';
+    }
+
+    function animateKey(key) {
+        const sel = `.phase1-key[data-key="${key === ' ' ? ' ' : key}"]`;
+        const el = keyboardArea.querySelector(sel);
+        if (el) {
+            el.classList.add('pressed');
+            setTimeout(() => el.classList.remove('pressed'), 120);
+        }
+    }
+
+    function handleInput(key) {
+        if (key === 'Shift') {
+            shiftActive = !shiftActive;
+            updateShift();
+            return;
+        }
+        if (key === 'Backspace') {
+            password = password.slice(0, -1);
+        } else if (key === 'Enter') {
+            if (requirements.every(r => r.test(password))) submit();
+            return;
+        } else if (key.length === 1) {
+            if (password.length < 32) {
+                let c = key;
+                if (shiftActive && /[a-z]/.test(c)) c = c.toUpperCase();
+                password += c;
+                shiftActive = false;
+                updateShift();
+            }
+        }
+        animateKey(key === ' ' ? ' ' : key);
+        updateUI();
+    }
+
+    async function submit() {
+        const btn = $('#phase1-submit');
+        btn.disabled = true;
+        btn.textContent = '⏳ Validando...';
+        try {
+            const fd = new FormData();
+            fd.append('password', password);
+            const r = await fetch(SUBMIT_URL, { method: 'POST', body: fd });
+            const d = await r.json();
+            if (d.success) {
+                // Titulo: status do submit (passa/falha nos 5 requisitos minimos)
+                $('#phase1-result-title').textContent =
+                    d.is_strong ? '🎉 Senha aprovada!' : '⚠️ Senha fraca';
+
+                // Texto do resultado: Forca (medidor) + Pontos (gameplay) lado a lado
+                const pts = d.points_earned || 0;
+                const forca = `Força: ${d.score}/${d.max_score}`;
+                const pontos = `Pontos desta fase: +${pts}`;
+                let html = `<div class="phase1-result-grid">` +
+                           `<div><strong>${forca}</strong> <span class="phase1-result-sub">(${d.label})</span></div>` +
+                           `<div><strong>${pontos}</strong></div>` +
+                           `</div>` +
+                           `<p>Tempo pra quebrar: <strong>${d.time}</strong></p>`;
+
+                // Se nao atingiu o maximo do medidor, explica o que faltou
+                if (d.score < d.max_score && Array.isArray(d.missing) && d.missing.length) {
+                    html += `<div class="phase1-result-missing">` +
+                            `<strong>O que faltou pra atingir ${d.max_score}/${d.max_score}:</strong>` +
+                            `<ul>`;
+                    d.missing.forEach(m => {
+                        html += `<li>+${m.pts} pts: ${m.reason}</li>`;
+                    });
+                    html += `</ul></div>`;
+                }
+                $('#phase1-result-text').innerHTML = html;
+                $('#phase1-next-btn').href = d.next_url;
+                $('#phase1-result').classList.remove('hidden');
+                btn.textContent = ' Validado!';
+            } else {
+                alert(d.error || 'Erro.');
+                btn.disabled = false;
+                btn.textContent = 'Crie uma senha forte para continuar';
+            }
+        } catch (e) {
+            console.error(e);
+            btn.disabled = false;
+            btn.textContent = 'Crie uma senha forte para continuar';
+        }
+    }
+
+    function reset() {
+        password = '';
+        shiftActive = false;
+        shown = false;
+        $('#phase1-result').classList.add('hidden');
+        // Restaura o botao submit (que fica "Validado!" apos submit) pro label original
+        const submitBtn = $('#phase1-submit');
+        if (submitBtn) {
+            submitBtn.disabled = true;  // vai ser reativado em updateUI quando atender os criterios
+            submitBtn.textContent = 'Crie uma senha forte para continuar';
+        }
+        renderKeyboard();
+        updateShift();
+        updateUI();
+        // Scroll de volta pro topo do teclado virtual
+        const kb = document.getElementById('phase1-keyboard');
+        if (kb) kb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function attachEvents() {
+        // Click no teclado virtual
+        keyboardArea.addEventListener('click', (e) => {
+            const btn = e.target.closest('.phase1-key');
+            if (!btn) return;
+            handleInput(btn.dataset.key);
+        });
+
+        // Toggle visibilidade
+        $('#toggle-visibility').addEventListener('click', () => {
+            shown = !shown;
+            updateUI();
+        });
+
+        // Apagar tudo
+        $('#phase1-clear').addEventListener('click', reset);
+
+        // Submit
+        $('#phase1-submit').addEventListener('click', submit);
+
+        // Retry: depois de ver o resultado, o usuario pode voltar e tentar outra senha.
+        // O backend aceita resubmit (deleta +100 antigos, recalcula com a nova senha).
+        const retryBtn = $('#phase1-retry');
+        if (retryBtn) retryBtn.addEventListener('click', reset);
+
+        // ═══════ TECLADO FÍSICO DO PC ═══════
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (['Shift','Control','Alt','Meta'].includes(e.key)) return;
+
+            const k = e.key;
+            if (k === 'Backspace') { handleInput('Backspace'); animateKey('Backspace'); return; }
+            if (k === 'Enter') { handleInput('Enter'); return; }
+            if (k === ' ' || k === 'Spacebar') { handleInput(' '); animateKey(' '); return; }
+            if (k === 'Tab' || k === 'Escape') return;
+            if (k.length === 1) { handleInput(k); animateKey(k); }
+        });
+
+        // Shift fisico: desliga ao soltar
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Shift') {
+                shiftActive = false;
+                updateShift();
+            }
+        });
+    }
+
+    // Init
+    if (keyboardArea) {
+        renderKeyboard();
+        updateShift();
+        updateUI();
+        attachEvents();
+    }
+
+    // Construtor de senha com dados (etapa 1 -> 2 -> fecha subfase)
+    if (builder && SAVE_DATA_URL && SUB3_SUBMIT_URL) {
+        const step1 = document.getElementById('phase1-builder-step1');
+        const step2 = document.getElementById('phase1-builder-step2');
+        const form = document.getElementById('phase1-builder-form');
+        const weakList = document.getElementById('phase1-weak-passwords');
+        const backBtn = document.getElementById('phase1-builder-back');
+        const continueBtn = document.getElementById('phase1-builder-continue');
+        // Captura o botao de submit e seu label original AGORA, no carregamento
+        // da pagina. Esses handles ficam disponiveis em todo o bloco abaixo
+        // (form, backBtn, continueBtn) — assim o handler do "Voltar" consegue
+        // restaurar o botao de submit (tirando o estado "Analisando..." que
+        // ficava preso quando o usuario voltava do step2 pro step1).
+        const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+        const SUBMIT_LABEL = submitBtn ? submitBtn.textContent : '';
+        const resetSubmitBtn = () => {
+            if (!submitBtn) return;
+            submitBtn.disabled = false;
+            submitBtn.textContent = SUBMIT_LABEL;
+        };
+
+        const show = (target) => {
+            [step1, step2].forEach(s => {
+                if (s) s.classList.add('phase1-hidden');
+            });
+            if (target) target.classList.remove('phase1-hidden');
+            builder.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        // Filtro em tempo real: bloqueia caracteres invalidos conforme o campo.
+        // - pet/team/city/mother: apenas letras (com acento) e espacos
+        // - dob: apenas digitos
+        // Defesa em profundidade: o backend tambem valida via regex no payload.
+        const ALPHA_RE = /[^A-Za-zÀ-ÿ\s]/g;
+        const DIGIT_RE = /[^0-9]/g;
+        function sanitizeInput(e) {
+            const input = e.target;
+            let re, replacement;
+            if (input.name === 'dob') {
+                re = DIGIT_RE;
+                replacement = '';
+            } else {
+                re = ALPHA_RE;
+                replacement = '';
+            }
+            // Preserva posicao do cursor
+            const oldPos = input.selectionStart;
+            const oldLen = input.value.length;
+            input.value = input.value.replace(re, replacement);
+            const newLen = input.value.length;
+            if (oldPos !== null) {
+                input.setSelectionRange(oldPos - (oldLen - newLen), oldPos - (oldLen - newLen));
+            }
+        }
+        ['pet', 'dob', 'team', 'city', 'mother'].forEach(name => {
+            const inp = form.querySelector(`input[name="${name}"]`);
+            if (inp) inp.addEventListener('input', sanitizeInput);
+        });
+
+        // Etapa 1 -> 2: envia os dados pro backend, recebe senhas fracas
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const fd = new FormData(form);
+                const raw = {
+                    pet:    (fd.get('pet')    || '').toString().trim(),
+                    dob:    (fd.get('dob')    || '').toString().trim(),
+                    team:   (fd.get('team')   || '').toString().trim(),
+                    city:   (fd.get('city')   || '').toString().trim(),
+                    mother: (fd.get('mother') || '').toString().trim()
+                };
+                const labels = { pet: 'Nome do seu pet', dob: 'Data de nascimento', team: 'Seu cantor(a)/banda favorito', city: 'Cidade onde nasceu', mother: 'Nome da sua mãe' };
+                const missing = Object.keys(raw).filter(k => !raw[k]);
+
+                // Limpa estado de erro anterior
+                form.querySelectorAll('.phase1-field.has-error').forEach(el => el.classList.remove('has-error'));
+                let errBox = form.querySelector('.phase1-form-error');
+                if (errBox) errBox.remove();
+
+                if (missing.length) {
+                    missing.forEach(k => {
+                        const input = form.querySelector('input[name="' + k + '"]');
+                        if (input && input.closest('.phase1-field')) {
+                            input.closest('.phase1-field').classList.add('has-error');
+                        }
+                    });
+                    const msg = 'Preencha todos os campos antes de continuar. Faltam: ' +
+                                missing.map(k => labels[k]).join(', ') + '.';
+                    errBox = document.createElement('div');
+                    errBox.className = 'phase1-form-error';
+                    errBox.setAttribute('role', 'alert');
+                    errBox.textContent = msg;
+                    form.appendChild(errBox);
+                    const firstBad = form.querySelector('.phase1-field.has-error input');
+                    if (firstBad) firstBad.focus();
+                    return;
+                }
+
+                const payload = raw;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Analisando...';
+                }
+                fetch(SAVE_DATA_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.weak_passwords && weakList) {
+                        weakList.innerHTML = data.weak_passwords.map(([pwd, why]) => {
+                            // Escapa HTML pra evitar injection no innerHTML
+                            const safePwd = String(pwd).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+                            const safeWhy = String(why).replace(/[<>&"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+                            return `<li class="phase1-weak-item">
+                                <span class="phase1-weak-pwd">${safePwd}</span>
+                                <span class="phase1-weak-why">${safeWhy}</span>
+                            </li>`;
+                        }).join('');
+                    }
+                    show(step2);
+                })
+                .catch(err => {
+                    console.error('Erro ao salvar dados:', err);
+                    resetSubmitBtn();
+                });
+            });
+        }
+
+        // Etapa 2 -> 1: voltar pro form. Tambem reseta o botao de submit
+        // pra tirar o estado "Analisando..." que ficava preso antes
+        // (o usuario voltava e o botao continuava disabled, ficando sem acao).
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                if (typeof resetSubmitBtn === 'function') resetSubmitBtn();
+                show(step1);
+            });
+        }
+
+        // Etapa 2 -> fecha subfase 3 e avanca pra Fase 2
+        if (continueBtn) {
+            continueBtn.addEventListener('click', () => {
+                continueBtn.disabled = true;
+                continueBtn.textContent = 'Carregando...';
+                fetch(SUB3_SUBMIT_URL, { method: 'POST' })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.next_url) {
+                            window.location.href = data.next_url;
+                        } else {
+                            continueBtn.disabled = false;
+                            continueBtn.textContent = 'Continuar →';
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Erro ao avancar:', err);
+                        continueBtn.disabled = false;
+                        continueBtn.textContent = 'Continuar →';
+                    });
+            });
+        }
+    }
+    // Scroll automatico ate o teclado quando clicar "Comecar"
+    if (keyboardArea) {
+        const startBtn = document.getElementById('phase1-start-btn');
+        if (startBtn) {
+            startBtn.addEventListener('click', () => {
+                setTimeout(() => {
+                    const kb = document.getElementById('phase1-keyboard');
+                    if (kb) kb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            });
+        }
+    }
+})();
+// ═══════════════════════════════════════════════════════════════════════════
+// ═══════ FASE 2 — CLASSIFICAR SENHAS (drag and drop) ═══════
+// ═══════════════════════════════════════════════════════════════════════════
+
+(function initPhase2() {
+    const root = document.getElementById('phase2-game');
+    if (!root) return;
+
+    const SUBMIT_URL = window.PHASE2_SUBMIT_URL;
+
+    // Pool: 4 faceis + 4 dificeis (8 cards no total)
+    const CARDS = [
+        // <img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"> FACEIS (4)
+        { text: "123456",          answer: "easy", why: "Sequência numérica óbvia, seria o primeiro chute de qualquer hacker" },
+        { text: "amor123",         answer: "easy", why: "Palavra comum + número, padrão clássico de dicionário" },
+        { text: "Maria1990",       answer: "easy", why: "Nome próprio + ano, fácil de descobrir via redes sociais" },
+        { text: "qwerty",          answer: "easy", why: "Pãdrao de teclado, entre as senhas mais usadas do mundo" },
+
+        // <img src="{{ url_for('static', filename='img/badges/cadeado.png') }}" alt="" style="width:18px;height:18px;vertical-align:middle;object-fit:contain;"> DIFICEIS (4)
+        { text: "Tr0mb@d4!X9",     answer: "hard", why: "Mistura letras, numeros e simbolos aleatorios" },
+        { text: "Cafe-7#Lua-92!",  answer: "hard", why: "Frase longa com hifens, numeros e simbolo" },
+        { text: "v7!qR3@kP9#",     answer: "hard", why: "Gerada aleatoriamente, sem significado pessoal" },
+        { text: "sol-lua-verde-branco-rosa-work-2026", answer: "hard", why: "Passphrase longa combinando palavras aleatorias" }
+    ];
+
+    let state = {
+        score: 0,
+        correct: 0,
+        wrong: 0,
+        total: CARDS.length,
+        placedCount: 0,
+        submitted: false
+    };
+
+    const $ = (s) => root.querySelector(s);
+    const $$ = (s) => root.querySelectorAll(s);
+    const pool = $('#phase2-pool');
+
+    // Embaralha (Fisher-Yates) e monta os cards
+    function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    }
+
+    function renderCards() {
+        pool.innerHTML = '';
+        shuffle(CARDS).forEach((card, i) => {
+            const el = document.createElement('div');
+            el.className = 'phase2-card';
+            el.draggable = true;
+            el.dataset.idx = String(i);
+            el.dataset.answer = card.answer;
+            // Store `why` directly on the element so the lookup later
+            // doesn't depend on the (shuffled) index into CARDS.
+            el.dataset.why = card.why;
+            el.innerHTML = `<span class="phase2-card-text">${card.text}</span>`;
+            pool.appendChild(el);
+            attachDrag(el);
+        });
+    }
+
+    function attachDrag(el) {
+        el.addEventListener('dragstart', (e) => {
+            if (el.classList.contains('placed')) { e.preventDefault(); return; }
+            el.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', el.dataset.idx);
+        });
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+    }
+
+    // Dropzones
+    $$('.phase2-dropzone').forEach(zone => {
+        zone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+        zone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            const idx = e.dataTransfer.getData('text/plain');
+            const card = pool.querySelector(`.phase2-card[data-idx="${idx}"]`)
+                       || zone.querySelector(`.phase2-card[data-idx="${idx}"]`);
+            if (!card || card.classList.contains('placed')) return;
+            handleDrop(card, zone);
+        });
+    });
+
+    // Tambem deixa devolver pro pool (arrastar de volta = reset)
+    pool.addEventListener('dragover', (e) => { e.preventDefault(); });
+
+    function handleDrop(card, zone) {
+        const guessed = zone.dataset.zone;          // 'easy' ou 'hard'
+        const expected = card.dataset.answer;
+        const isCorrect = guessed === expected;
+
+        // Trava o card
+        card.classList.remove('dragging');
+        card.classList.add('placed');
+        card.draggable = false;
+        card.classList.add(isCorrect ? 'is-correct' : 'is-wrong');
+
+        // Tooltip explicando
+        // Use the `why` stored on the element directly (the CARDS array is
+        // shuffled, so indexing by dataset.idx would return the wrong object).
+        const why = card.dataset.why || '';
+        // Adiciona uma ribbon com a explicacao (tooltip simples)
+        const tip = document.createElement('span');
+        tip.className = 'phase2-card-tip';
+        tip.textContent = (isCorrect ? ' ' : '❌ ') + why;
+        card.appendChild(tip);
+
+        // Move o card pra coluna
+        zone.appendChild(card);
+
+        // Pontua
+        if (isCorrect) {
+            state.score += 10;
+            state.correct++;
+        } else {
+            state.wrong++;
+        }
+        state.placedCount++;
+        updateStats();
+
+        // Quando todos os cards foram posicionados, finaliza
+        if (state.placedCount >= state.total && !state.submitted) {
+            state.submitted = true;
+            // Mostrar o botao IMEDIATAMENTE (sem delay) pra nao depender do
+            // event loop estar saudavel. O backend roda em paralelo.
+            finalize();
+        }
+    }
+
+    function updateStats() {
+        // Os spans #phase2-score e #phase2-correct foram escondidos em ago/2026
+        // a pedido da Duda (visual poluido). updateStats() ainda e chamado apos
+        // cada drop, mas os elementos podem nao existir - checa pra nao quebrar.
+        const scoreEl = $('#phase2-score');
+        if (scoreEl) scoreEl.textContent = state.score;
+        const correctEl = $('#phase2-correct');
+        if (correctEl) correctEl.textContent = `${state.correct}/${state.total}`;
+    }
+
+    function finalize() {
+        // Mostra o botao de proxima fase IMEDIATAMENTE - o usuario nao pode
+        // ficar travado na tela esperando o backend responder.
+        const finalEl = $('#phase2-final');
+        const nextEl = $('#phase2-next');
+        if (finalEl) finalEl.classList.remove('hidden');
+        if (nextEl) nextEl.href = '/game/{{ game.id }}/phase/2/sub/1';  // fallback
+
+        // Envia pro backend em background pra creditar pontos (best-effort)
+        if (SUBMIT_URL) {
+            fetch(SUBMIT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ score: state.score, correct: state.correct, wrong: state.wrong })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.next_url && nextEl) nextEl.href = data.next_url;
+            })
+            .catch(e => console.error('phase2 submit error:', e));
+        }
+    }
+
+    // Boot
+    renderCards();
+    updateStats();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{
+  "group_id": "bee724ce-0158-481c-bf5e-8f8493326144",
+  "objects": [
+    {
+      "id": "ababd11c-4e69-473a-8dd7-9f580414e3ea",
+      "name": "base",
+      "prompt": "A pixel art question mark icon in a retro 16-bit video game style, featuring a bold and clearly recognizable question mark symbol. Use a harmonious color palette of emerald green, white, and soft pink. The question mark should have a cute, polished, colorful, and playful design, with crisp pixelated edges, chunky pixel clusters, subtle pixel-based highlights and shadows, and strong visual clarity. No smooth gradients, no anti-aliasing, centered composition, isolated on a transparent or simple solid background. Charming, polished gaming aesthetic, high-quality pixel art.",
+      "size": {
+        "width": 64,
+        "height": 64
+      },
+      "directions": 1,
+      "view": "low top-down",
+      "rotations": {
+        "unknown": "rotations/A_pixel_art_question_mark_icon.png"
+      },
+      "animations": {}
+    }
+  ],
+  "export_version": "1.1",
+  "export_date": "2026-09-21T04:52:51.888990"
+}

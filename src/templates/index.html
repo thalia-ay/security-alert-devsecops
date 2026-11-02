@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Bem-vindo{% endblock %}
+{% block content %}
+<div class="landing" aria-hidden="false">
+    <!-- Wallpaper cyber - camadas fixas decorativas (NAO interfere em cliques/texto) -->
+    <div class="lp-floats" aria-hidden="true">
+        <span class="lp-blob lp-blob-r"></span>
+        <span class="lp-blob lp-blob-m"></span>
+        <span class="lp-ring lp-ring-tl"></span>
+        <span class="lp-ring lp-ring-br"></span>
+        <span class="lp-hexn h1">0xA7F3 // 204.7</span>
+        <span class="lp-hexn h2">0xB5C2 // 18.42</span>
+        <span class="lp-hexn h3">SYS::OK // 99.7</span>
+        <span class="lp-hexn h4">0xF29D // 42.18</span>
+        <span class="lp-hexn h5">0xDEAD // 512.3</span>
+        <span class="lp-hexn h6">NET::SYNC // 0xFF</span>
+        <span class="lp-spark s1"></span>
+        <span class="lp-spark s2"></span>
+        <span class="lp-spark s3"></span>
+        <span class="lp-spark s4"></span>
+        <span class="lp-spark s5"></span>
+        <span class="lp-spark s6"></span>
+        <span class="lp-particle p1"></span>
+        <span class="lp-particle p2"></span>
+        <span class="lp-particle p3"></span>
+        <span class="lp-particle p4"></span>
+        <span class="lp-stream"></span>
+        <!-- 10 elementos novos: parecidos com /register (escudo, lock, network, hex, terminal, fp)
+             Todos via background-image data-URI no CSS (sem SVG inline, mesma abordagem do wallpaper.css) -->
+        <span class="lp-shield lp-shield-r" aria-hidden="true"></span>
+        <span class="lp-shield lp-shield-m" aria-hidden="true"></span>
+        <span class="lp-lock lp-lock-1" aria-hidden="true"></span>
+        <span class="lp-lock lp-lock-2" aria-hidden="true"></span>
+        <span class="lp-net lp-net-1" aria-hidden="true"></span>
+        <span class="lp-net lp-net-2" aria-hidden="true"></span>
+        <span class="lp-hex-solo lp-hex-solo-1" aria-hidden="true"></span>
+        <span class="lp-hex-solo lp-hex-solo-2" aria-hidden="true"></span>
+        <span class="lp-terminal-m" aria-hidden="true"></span>
+        <span class="lp-fp-m" aria-hidden="true"></span>
+    </div>
+    <div class="landing-hero">
+        <div class="hero-badge">🔐 Challenge Leroy Merlin 2026</div>
+        <h1 class="hero-title">
+            <img src="{{ url_for('static', filename='img/Security Alert (1).png') }}" alt="Security Alert" class="hero-logo">
+        </h1>
+        <p class="hero-subtitle">
+            Plataforma corporativa de capacitacao em ciberseguranca.<br>
+            Treinamento continuo para colaboradores contra ameacas digitais reais do cotidiano empresarial.
+        </p>
+        <div class="hero-cta">
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg"><img src="{{ url_for('static', filename='img/badges/chave.png') }}" alt="" style="width:20px;height:20px;vertical-align:middle;object-fit:contain;"> Entrar</a>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Criar Conta</a>
+        </div>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <span class="feature-icon"></span>
+            <h3>Modulos de Treinamento</h3>
+            <p>Senhas, negligência operacional, classificação de documentos e phishing - os vetores de ataque mais explorados contra empresas.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon"></span>
+            <h3>Avaliação por Pontuação</h3>
+            <p>Cada fase concluida corretamente gera pontos. A pontuação final mede sua preparação para identificar ameaças.</p>
+        </div>
+        <div class="feature-card">
+            <span class="feature-icon"></span>
+            <h3>Ranking por Loja</h3>
+            <p>As lojas competem entre si pela soma do melhor score de seus colaboradores.</p>
+        </div>
+    </div>
+
+    {# Ranking por Loja #}
+    {% if ranking %}
+    <div class="national-ranking">
+        <h2 class="section-title"><img src="{{ url_for('static', filename='img/badges/trofeu.png') }}" alt="" style="width:48px;height:48px;vertical-align:middle;object-fit:contain;"> Ranking por Loja</h2>
+        <p class="section-subtitle">Soma do melhor score dos colaboradores de cada loja.</p>
+        <div class="ranking-table">
+            {% for loja in ranking %}
+            <div class="rank-row {% if loop.index <= 3 %}rank-top{% endif %}">
+                <span class="rank-medal">
+                    <img src="{{ url_for('static', filename='img/badges/medalha.png') }}" alt="" style="width:32px;height:32px;vertical-align:middle;object-fit:contain;"> {{ loop.index }}º
+                </span>
+                <span class="rank-name">{{ loja.loja }}</span>
+                <span class="rank-players">{{ loja.total_players }} colaborador{{ 'es' if loja.total_players > 1 else '' }}</span>
+                <span class="rank-score">{{ loja.total_score }} pts</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="landing-links">
+        <a href="{{ url_for('about') }}" class="landing-link-card">
+            <span class="ll-icon"><img src="{{ url_for('static', filename='img/badges/interrogacao.png') }}" alt="" style="width:48px;height:48px;vertical-align:middle;object-fit:contain;"></span>
+            <span class="ll-title">Por que este treinamento?</span>
+            <span class="ll-desc">Entenda a importância do treinamento.</span>
+        </a>
+        <a href="{{ url_for('about') }}#quem-somos" class="landing-link-card">
+            <span class="ll-icon"><img src="{{ url_for('static', filename='img/badges/pessoa.png') }}" alt="" style="width:48px;height:48px;vertical-align:middle;object-fit:contain;"></span>
+            <span class="ll-title">Quem somos</span>
+            <span class="ll-desc">Conheça o grupo.</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{# Footer vazio na landing - esconde "Security Alert" do base.html #}
+{% block footer %}{% endblock %}

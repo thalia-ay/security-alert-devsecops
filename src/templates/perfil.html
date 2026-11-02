@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Meu Perfil - Security Alert{% endblock %}
+
+{% block content %}
+<div class="profile-card">
+    <div class="profile-header">
+        <h1 class="profile-title">Meu Perfil</h1>
+        <p class="profile-subtitle">Gerencie sua foto e acompanhe suas conquistas.</p>
+    </div>
+
+    <div class="profile-body">
+        <div class="profile-photo-section">
+            {% if user.profile_image %}
+                <img src="{{ url_for('static', filename='img/avatars/' + user.profile_image) }}" alt="Foto de perfil" class="profile-avatar">
+            {% else %}
+                <div class="profile-avatar profile-avatar-default">👤</div>
+            {% endif %}
+
+            <form method="POST" enctype="multipart/form-data" class="profile-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="profile_image" class="btn btn-primary btn-upload">
+                    📷 Escolher foto
+                </label>
+                <input type="file" id="profile_image" name="profile_image" accept="image/png,image/jpeg,image/gif,image/webp" onchange="this.form.submit()" hidden>
+                <p class="profile-hint">PNG, JPG, GIF ou WEBP. Maximo 2MB.</p>
+            </form>
+        </div>
+
+        <div class="profile-info">
+            <div class="info-row">
+                <span class="info-label">Usuário</span>
+                <span class="info-value">{{ user.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">E-mail</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Loja</span>
+                <span class="info-value">{{ user.loja or 'Nao informada' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Membro desde</span>
+                <span class="info-value">{{ user.created_at }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-badges-section">
+        <h2 class="profile-badges-title">
+            <img src="{{ url_for('static', filename='img/badges/medalha.png') }}" alt="" class="profile-title-icon">
+            Minhas Conquistas
+        </h2>
+        {% set unlocked_badges = badges | selectattr('unlocked') | list %}
+        <p class="profile-badges-count">{{ unlocked_badges | length }} de {{ badges | length }} badges desbloqueadas</p>
+
+        {% if unlocked_badges %}
+        <div class="profile-badges-grid">
+            {% for badge in unlocked_badges %}
+            <div class="profile-badge-item" title="{{ badge.description }} Desbloqueada em {{ badge.unlocked_at }}">
+                <div class="profile-badge-icon">
+                    {% if badge.icon.startswith('img/') %}
+                        <img src="{{ url_for('static', filename=badge.icon) }}" alt="{{ badge.name }}">
+                    {% else %}
+                        <span>{{ badge.icon }}</span>
+                    {% endif %}
+                </div>
+                <span class="profile-badge-name">{{ badge.name }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="profile-badges-empty">Voce ainda nao conquistou nenhuma badge. Jogue para desbloquear!</p>
+        {% endif %}
+    </div>
+
+    <div class="profile-footer">
+        {% if session.get('is_admin') %}
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-success">Painel Admin</a>
+        {% endif %}
+        <a href="{{ url_for('badges') }}" class="btn btn-primary">Ver Todas as Conquistas</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline">Voltar ao Dashboard</a>
+    </div>
+</div>
+{% endblock %}

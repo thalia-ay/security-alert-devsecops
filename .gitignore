@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+venv/
+.venv/
+env/
+
+# Dados da aplicacao (NUNCA versionar)
+instance/
+*.db
+*.sqlite
+*.sqlite3
+src/static/img/avatars/*
+!src/static/img/avatars/.gitkeep
+
+# Segredos
+.env
+.env.*
+
+# Relatorios gerados localmente pelas ferramentas
+gitleaks.json
+semgrep.json
+semgrep.sarif
+trivy-*.txt
+trivy-*.json
+pip-audit.json
+report_*.html
+report_*.json
+report_*.md
+
+# IDE / SO
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin - Security Alert{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1 class="admin-title">Painel do Administrador</h1>
+        <p class="admin-subtitle">Gerencie usuarios, senhas e progresso da plataforma.</p>
+    </div>
+
+    <div class="admin-table-wrapper">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Email</th>
+                    <th>Loja</th>
+                    <th>Jogos</th>
+                    <th>Completos</th>
+                    <th>Melhor Score</th>
+                    <th>Tipo</th>
+                    <th>Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.username }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.loja or '-' }}</td>
+                    <td>{{ u.total_games }}</td>
+                    <td>{{ u.completed_games }}</td>
+                    <td>{{ u.best_score }}</td>
+                    <td>
+                        {% if u.is_admin %}
+                            <span class="admin-badge admin">Admin</span>
+                        {% else %}
+                            <span class="admin-badge user">Comum</span>
+                        {% endif %}
+                    </td>
+                    <td class="admin-actions">
+                        {% if u.id != session.user_id %}
+                        <form method="POST" action="{{ url_for('admin_reset_password', user_id=u.id) }}" class="admin-form-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="password" name="new_password" placeholder="Nova senha" required minlength="6">
+                            <button type="submit" class="btn btn-sm btn-primary">Resetar Senha</button>
+                        </form>
+
+                        <form method="POST" action="{{ url_for('admin_toggle_admin', user_id=u.id) }}" class="admin-form-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            {% if u.is_admin %}
+                                <button type="submit" class="btn btn-sm btn-outline">Tornar Comum</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-sm btn-success">Tornar Admin</button>
+                            {% endif %}
+                        </form>
+
+                        <form method="POST" action="{{ url_for('admin_delete_user', user_id=u.id) }}" class="admin-form-inline" onsubmit="return confirm('Tem certeza que deseja EXCLUIR a conta {{ u.username }}? Essa acao nao pode ser desfeita.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger">Excluir</button>
+                        </form>
+                        {% endif %}
+
+                        <form method="POST" action="{{ url_for('admin_reset_progress', user_id=u.id) }}" class="admin-form-inline" onsubmit="return confirm('Tem certeza que deseja resetar TODO o progresso de {{ u.username }}?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-warning">Resetar Progresso</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="admin-footer">
+        <a href="{{ url_for('perfil') }}" class="btn btn-outline">Voltar ao Perfil</a>
+    </div>
+</div>
+{% endblock %}

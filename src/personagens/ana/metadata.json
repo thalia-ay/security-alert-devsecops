@@ -1,0 +1,36 @@
+{
+  "group_id": "a215b0c2-ace9-408d-9840-983a9ff81c70",
+  "states": [
+    {
+      "character": {
+        "id": "cc8c826b-62c7-4b8a-8c67-48a93ea26ec4",
+        "name": "Idle",
+        "prompt": "Create a full-body chibi pixel-art character based on the person in the reference image.\n\nThe character is a young woman with a warm medium-brown complexion, a gentle and friendly smile, expressive dark brown eyes, and thin, transparent/light-colored glasses with a rounded rectangular shape. She has long, thick, naturally curly dark-brown hair, partially pulled back at the top while the rest falls loosely around her shoulders and upper back. Her curls should be voluminous and clearly recognizable as one of her defining features.\n\nShe wears small, elegant gold earrings and a delicate gold necklace. Dress her in casual, everyday clothing: a cozy oversized brown teddy-fleece jacket with a soft texture, a simple black or very dark top underneath, relaxed dark-blue or dark-gray high-waisted jeans, and simple off-white sneakers.\n\nShow her standing upright in a natural, relaxed pose, with one hand casually resting inside a pants pocket and the other hanging naturally by her side. Give her a subtle, friendly smile and a calm, approachable expression.\n\nUse a cute chibi character design with an oversized head, large expressive eyes, simplified facial features, and a smaller stylized body. Render everything in detailed retro pixel art with crisp pixel edges, carefully placed highlights and shadows, and a polished video-game sprite aesthetic.\n\nFull body, entire character visible from head to shoes, centered composition, clean silhouette, no table, no food, no dessert, no chair, no seated pose, no cropped body.\n",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-08-19T13:53:18.819324+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-08-19T13:58:13.295442"
+}

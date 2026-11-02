@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Badges - Security Alert{% endblock %}
+
+{% block content %}
+<div class="badges-container">
+    <div class="badges-header">
+        <h1 class="badges-title">
+            <img src="{{ url_for('static', filename='img/badges/medalha.png') }}" alt="" class="badges-title-icon">
+            Conquistas
+        </h1>
+        <p class="badges-subtitle">Conheca as badges que voce pode desbloquear jogando na plataforma.</p>
+    </div>
+
+    <div class="badges-grid">
+        {% for badge in badges %}
+        <div class="badge-card rarity-{{ badge.rarity }}">
+            <div class="badge-icon">
+                {% if badge.icon.startswith('img/') %}
+                    <img src="{{ url_for('static', filename=badge.icon) }}" alt="{{ badge.name }}">
+                {% else %}
+                    <span>{{ badge.icon }}</span>
+                {% endif %}
+            </div>
+            <div class="badge-info">
+                <h3 class="badge-name">{{ badge.name }}</h3>
+                <span class="badge-rarity">{{ badge.rarity | capitalize }}</span>
+                <p class="badge-description">{{ badge.description }}</p>
+                <p class="badge-requirement"><strong>Como desbloquear:</strong> {{ badge.requirement }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="badges-footer">
+        <a href="{{ url_for('perfil') }}" class="btn btn-outline">Voltar ao Perfil</a>
+    </div>
+</div>
+{% endblock %}

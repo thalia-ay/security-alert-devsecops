@@ -1,0 +1,36 @@
+{
+  "group_id": "4f3bc751-7b69-45ca-942f-67e1f383a463",
+  "states": [
+    {
+      "character": {
+        "id": "1813a59c-86e2-458f-af66-d59ae85c411e",
+        "name": "Idle",
+        "prompt": "A cute pixel-art chibi character of a white man standing upright, with dark-colored eyes, wearing green clothes and clean white sneakers. Small proportions, oversized head, expressive face, simplified features, charming and friendly appearance, crisp pixelated details, retro 16-bit video game aesthetic, full-body view, front-facing standing pose, transparent or simple background.\n",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-09-21T01:38:30.163724+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-09-21T01:43:00.003437"
+}

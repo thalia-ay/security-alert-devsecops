@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Sobre - Security Alert{% endblock %}
+{% block content %}
+<div class="about-page" aria-hidden="false">
+    <!-- Wallpaper cyber - camadas fixas decorativas (NAO interfere em cliques/texto) -->
+    <div class="lp-floats" aria-hidden="true">
+        <span class="lp-blob lp-blob-r"></span>
+        <span class="lp-blob lp-blob-m"></span>
+        <span class="lp-ring lp-ring-tl"></span>
+        <span class="lp-ring lp-ring-br"></span>
+        <span class="lp-hexn h1">0xA7F3 // 204.7</span>
+        <span class="lp-hexn h2">0xB5C2 // 18.42</span>
+        <span class="lp-hexn h3">SYS::OK // 99.7</span>
+        <span class="lp-hexn h4">0xF29D // 42.18</span>
+        <span class="lp-hexn h5">0xDEAD // 512.3</span>
+        <span class="lp-hexn h6">NET::SYNC // 0xFF</span>
+        <span class="lp-spark s1"></span>
+        <span class="lp-spark s2"></span>
+        <span class="lp-spark s3"></span>
+        <span class="lp-spark s4"></span>
+        <span class="lp-spark s5"></span>
+        <span class="lp-spark s6"></span>
+        <span class="lp-particle p1"></span>
+        <span class="lp-particle p2"></span>
+        <span class="lp-particle p3"></span>
+        <span class="lp-particle p4"></span>
+        <span class="lp-stream"></span>
+    </div>
+    <h1 class="hero-title" style="font-size: 2.8rem;">Sobre a Security Alert</h1>
+
+    <section class="about-section">
+        <h2 class="section-title"> Por que a Security Alert?</h2>
+        <div class="about-text">
+            <p>A <strong>Security Alert</strong> surgiu com a proposta de tornar o aprendizado sobre segurança da informação mais simples, dinâmico e próximo da realidade dos colaboradores.</p>
+            <p>Formada por quatro estudantes de Defesa Cibernética, a equipe buscou criar uma experiência que fosse além de um treinamento tradicional. A ideia foi transformar conteúdos importantes em situações interativas, nas quais o usuário pudesse participar, tomar decisões e aprender com cada escolha.</p>
+            <p>A plataforma aborda situações presentes no dia a dia de uma empresa, como a identificação de tentativas de phishing, a criação e proteção de senhas, a classificação de informações como públicas, internas ou confidenciais e os cuidados necessários ao utilizar dispositivos pessoais.</p>
+            <p>Esta plataforma oferece capacitação prática em quatro frentes críticas:</p>
+            <ul class="about-list">
+                <li><strong>Senhas seguras</strong> - composicao, gestao e nao compartilhamento</li>
+                <li><strong>Classificação de conteúdo</strong> - aprender sobre confidencialidadem, informações públicas e internas</li>
+                <li><strong>Negligência operacional</strong> - dispositivos perdidos, informacoes sigilosas</li>
+                <li><strong>Phishing e Engenharia Social</strong> - identificação de tentativas por e-mail, telefone e web</li>
+            </ul>
+            <p>Mais do que transmitir regras, a Security Alert busca mostrar, de forma leve e prática, como pequenas atitudes podem contribuir para a segurança de toda a empresa, e especialmente, na Leroy Merlin.</p>
+        </div>
+    </section>
+
+    <section class="about-section" id="quem-somos">
+        <h2 class="section-title">  Quem somos? </h2>
+        <div class="about-text">
+            <p>O grupo <strong>Security Alert</strong> foi formado por alunos do curso de Defesa Cibernética da FIAP, como parte do Challenge Leroy Merlin 2026.</p>
+            <div class="team-grid">
+                <div class="team-card">
+                    <strong>Ana Luiza Azevedo Morais</strong>
+                    <span> Focada em Inteligência Forense Computacional </span>
+                    <span> RM: 565711</span>
+                </div>
+                <div class="team-card">
+                    <strong>Maria Eduarda de Lucena Alves</strong>
+                    <span> Focada em Gestão de Identidade e Acessos</span>
+                    <span>RM: 565184</span>
+                </div>
+                <div class="team-card">
+                    <strong>Pedro Henrique Copertino</strong>
+                    <span> Entusiasta em Pentest e Inteligência Forense Computacional</span>
+                    
+                    <span>RM: 564771</span>
+                </div>
+                <div class="team-card">
+                    <strong>Thalia Aiko Yamamoto</strong>
+                    <span> Focada em Security Operations Center (SOC)</span>
+                    <span>RM: 561758</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="about-cta">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">← Voltar para a pagina inicial</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}Security Alert{% endblock %}</title>
+    <script src="{{ url_for('static', filename='js/csrf.js') }}"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/wallpaper.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% if request.endpoint == 'index' %}landing-page{% elif request.endpoint == 'about' %}landing-page about-page{% endif %}">
+    {% if session.user_id %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('dashboard') }}" class="nav-brand">
+                <img src="{{ url_for('static', filename='img/Security Alert (1).png') }}" alt="Security Alert" class="nav-logo">
+        
+                <span class="nav-amp">|</span>
+                <img src="{{ url_for('static', filename='img/image (1).png') }}" alt="Leroy Merlin" class="nav-logo nav-logo-partner">
+            </a>
+            <div class="nav-links">
+                <a href="{{ url_for('perfil') }}" class="nav-profile">
+                    {% if session.get('profile_image') %}
+                        <img src="{{ url_for('static', filename='img/avatars/' + session.profile_image) }}" alt="Foto de perfil" class="nav-avatar">
+                    {% else %}
+                        <span class="nav-avatar nav-avatar-default">👤</span>
+                    {% endif %}
+                    <span class="nav-username">{{ session.username }}</span>
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                <a href="{{ url_for('cursos') }}" class="nav-link">Cursos</a>
+                {# Link "Personagem" removido do menu em ago/2026 — a pagina so aparece antes do game_start #}
+                {# {% if false %}<a href="{{ url_for('personagem') }}" class="nav-link"><img src="{{ url_for('static', filename='img/badges/controle.png') }}" alt="" style="width:16px;height:16px;vertical-align:middle;object-fit:contain;margin-right:4px;"> Personagem</a>{% endif %} #}
+                <a href="{{ url_for('personagem') }}" class="btn btn-sm btn-success"><img src="{{ url_for('static', filename='img/badges/controle.png') }}" alt="" style="width:16px;height:16px;vertical-align:middle;object-fit:contain;margin-right:4px;">Novo Jogo</a>
+                <a href="{{ url_for('logout') }}" class="nav-link">Sair</a>
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+    <footer class="footer">
+        <p>🔐 Security Alert &copy; 2026 | Challenge Leroy Merlin | FIAP - Defesa Cibernetica</p>
+        <p style="font-size: 0.7em;">Created by Ana Luiza, Maria Eduarda, Thalia Aiko, Pedro Henrique </p>
+    </footer>
+    {% endblock %}
+    {% block extra_js %}{% endblock %}
+    <script>
+    (function() {
+        var skipTags = /^(script|style|textarea|input|select|option|code|pre)$/i;
+        function wrapNumbers(node) {
+            if (node.nodeType !== 3) {
+                for (var i = node.childNodes.length - 1; i >= 0; i--) {
+                    wrapNumbers(node.childNodes[i]);
+                }
+                return;
+            }
+            var text = node.nodeValue;
+            if (!/\d/.test(text)) return;
+            var parent = node.parentNode;
+            if (skipTags.test(parent.tagName)) return;
+            var parts = text.split(/(\d+)/);
+            var frag = document.createDocumentFragment();
+            for (var j = 0; j < parts.length; j++) {
+                if (/^\d+$/.test(parts[j])) {
+                    var span = document.createElement('span');
+                    span.className = 'num';
+                    span.textContent = parts[j];
+                    frag.appendChild(span);
+                } else if (parts[j]) {
+                    frag.appendChild(document.createTextNode(parts[j]));
+                }
+            }
+            parent.replaceChild(frag, node);
+        }
+        wrapNumbers(document.body);
+    })();
+    </script>
+</body>
+</html>

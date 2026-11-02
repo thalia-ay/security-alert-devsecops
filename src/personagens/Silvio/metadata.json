@@ -1,0 +1,35 @@
+{
+  "group_id": "b206ddf7-77c2-45f4-a83c-edf21d7d2fb2",
+  "states": [
+    {
+      "character": {
+        "id": "bd880312-dc76-453d-bd68-ab9b3445a5df",
+        "name": "Idle",
+        "prompt": "Create a high-quality full-body chibi pixel-art character of a strong, broad-built middle-aged man, around 45\u201350 years old.\n\nHe has short, thick salt-and-pepper hair brushed backward, thick dark eyebrows, a strong masculine face, medium-sized nose, and a full, dense gray-and-white beard and mustache. His expression is serious, confident, and slightly stern. He should look mature and charismatic, but NOT elderly, frail, or exaggeratedly old.\n\nShow him facing forward or slightly toward the viewer, never in side profile. He stands upright with his arms confidently crossed over his chest. Keep a substantial chibi body \u2014 large head, but not an extremely tiny body. Show the entire character from head to feet.\n\nHe wears a modern, masculine green outfit: a stylish dark/medium green shirt or jacket, dark green pants, and dark shoes. Keep the clothing clean and simple, with subtle green shading and details. No armor, robes, weapons, capes, or fantasy accessories.\n\nSTYLE: premium retro 16-bit/32-bit pixel art, polished video-game character sprite, clean pixel clusters, sharp edges, strong silhouette, detailed facial features, carefully rendered salt-and-pepper hair and beard, rich pixel shading, controlled color palette, strong light and shadow contrast.\n\nThe result should feel like a recognizable real adult man transformed into a polished chibi pixel character, NOT a generic cartoon or fantasy NPC.\n\nAvoid: elderly appearance, side profile, tiny body, hunched posture, excessive wrinkles, oversized nose, beard covering the entire face, medieval/fantasy clothing, anime style, 3D rendering, smooth digital painting, blurry pixels, childish expression, or overly cute features.\n\nSimple dark or neutral background.",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-08-19T12:50:07.819462+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-08-19T13:16:16.281305"
+}

@@ -1,0 +1,36 @@
+{
+  "group_id": "a6c5423f-8aa8-442e-b820-a08d265ee703",
+  "states": [
+    {
+      "character": {
+        "id": "7338b983-af04-422d-9802-334de643184f",
+        "name": "Idle",
+        "prompt": "Create a pixelated chibi-style character of an Asian woman around 35 years old. She has a cute, friendly, and charming appearance, with expressive eyes and soft facial features. She is wearing a uniform with horizontal green and white stripes, and green jeans. Use a retro pixel-art aesthetic, with crisp pixels, a limited color palette, clean outlines, and adorable proportions. Full-body character, centered composition, simple background, highly detailed pixel art.",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-08-19T12:32:15.588641+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-08-19T12:36:17.485518"
+}

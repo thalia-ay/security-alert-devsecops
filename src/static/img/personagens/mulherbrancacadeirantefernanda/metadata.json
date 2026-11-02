@@ -1,0 +1,36 @@
+{
+  "group_id": "26054902-6aa4-41ac-8c20-9593b3bb86af",
+  "states": [
+    {
+      "character": {
+        "id": "8d49b592-c9a0-4a27-a3d0-b8a5c0f1f368",
+        "name": "Idle",
+        "prompt": "```text\nCreate a full-body chibi pixel-art character of a white woman who uses a wheelchair. She has fair skin, a friendly and warm expression, expressive eyes, and neatly styled hair. She is wearing a stylish casual green outfit, consisting of a green blouse or sweater, matching green pants, and simple comfortable shoes.\n\nHer wheelchair is clearly visible and predominantly black, with a sleek modern design, black wheels, and detailed pixel-art shading. The wheelchair should be naturally integrated into the character's pose rather than treated as a separate object.\n\nUse a cute chibi design with an oversized head, expressive eyes, simplified facial features, and a compact stylized body. Render the entire character in detailed retro pixel art with crisp pixel edges, subtle highlights and shadows, and a polished video-game sprite aesthetic.\n\nFull body, centered composition, entire wheelchair visible, front three-quarter view, natural relaxed posture, friendly expression, clean silhouette, transparent or simple plain background. No table, no food, no additional characters, no cropped body.\n```\n",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "high top-down",
+        "created_at": "2026-09-21T01:26:26.754864+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-09-21T01:30:56.485277"
+}

@@ -1,0 +1,3 @@
+# Dependencias de desenvolvimento/testes (nao vao para a imagem Docker)
+pytest==9.2.0
+pytest-cov==7.1.0

@@ -1,0 +1,1121 @@
+/* =========================================================
+   WALLPAPER PERSONAGEM + DASHBOARD
+   - Decorativo, nao mexe em texto/clicks.
+   - pointer-events: none em tudo.
+   - Opacidade MENOR que landing (cap ~0.5, blobs ~0.15).
+   - Paleta: rosa #F29DBF + menta #A8D5BA.
+   ========================================================= */
+
+/* garante que o conteudo fica acima do wallpaper */
+.dashboard, .char-page { position: relative; z-index: 2; }
+.wallpaper,
+.wallpaper * {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+/* container base */
+.wallpaper {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+}
+
+/* ============================================================
+   VARIAVEIS POR PAGINA - controla tema via classe no body/html
+   ============================================================ */
+
+/* PERSONAGEM: galeria/spotlight (luzes suaves + molduras) */
+.wallpaper--char {
+    background:
+        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(242, 157, 191, .08), transparent 65%),
+        radial-gradient(ellipse 50% 40% at 85% 90%, rgba(168, 213, 186, .06), transparent 65%);
+}
+
+/* DASHBOARD: data/HUD (linhas de grafico + terminal) */
+.wallpaper--dash {
+    background:
+        radial-gradient(ellipse 70% 30% at 50% 0%, rgba(168, 213, 186, .05), transparent 70%),
+        radial-gradient(ellipse 50% 50% at 10% 100%, rgba(242, 157, 191, .04), transparent 65%);
+}
+
+/* === camada 1: grid cyber rosa (bem mais sutil que landing) === */
+.wp-grid {
+    position: absolute;
+    inset: -2px;
+    background-image:
+        linear-gradient(rgba(242, 157, 191, .045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(242, 157, 191, .045) 1px, transparent 1px);
+    background-size: 56px 56px;
+    opacity: .5;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 25%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 50%, #000 25%, transparent 80%);
+}
+
+/* === camada 2: scanlines CRT mais leves === */
+.wp-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 4px,
+        rgba(168, 213, 186, .025) 4px,
+        rgba(168, 213, 186, .025) 5px
+    );
+    mix-blend-mode: screen;
+    opacity: .5;
+}
+
+/* === camada 3: blobs (muito mais suaves) === */
+.wp-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: .12;
+}
+.wp-blob-1 {
+    width: 460px; height: 460px;
+    background: radial-gradient(circle, rgba(242, 157, 191, .55), transparent 70%);
+    top: -160px; left: -140px;
+}
+.wp-blob-2 {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(168, 213, 186, .45), transparent 70%);
+    bottom: -160px; right: -120px;
+}
+
+/* =========================================================
+   ELEMENTOS EXCLUSIVOS PERSONAGEM (galeria/spotlight)
+   ========================================================= */
+
+/* Spotlight no topo (luz tipo museu) */
+.wp-spotlight {
+    position: absolute;
+    top: -120px; left: 50%;
+    width: 700px; height: 600px;
+    margin-left: -350px;
+    background: radial-gradient(ellipse 50% 60% at 50% 0%,
+        rgba(242, 157, 191, .12) 0%,
+        rgba(242, 157, 191, .04) 35%,
+        transparent 70%);
+    opacity: .8;
+}
+
+/* Molduras flutuantes (vazias - so aparencia, nao interferem nos cards) */
+.wp-frame {
+    position: absolute;
+    border: 1px solid rgba(242, 157, 191, .25);
+    background: rgba(242, 157, 191, .015);
+    opacity: .5;
+    animation: wp-frame-float 9s ease-in-out infinite;
+}
+.wp-frame.f1 {
+    width: 90px; height: 130px;
+    top: 18%; left: 6%;
+    transform: rotate(-6deg);
+    animation-delay: 0s;
+}
+.wp-frame.f2 {
+    width: 110px; height: 150px;
+    top: 22%; right: 8%;
+    transform: rotate(5deg);
+    animation-delay: 1.5s;
+    border-color: rgba(168, 213, 186, .25);
+}
+.wp-frame.f3 {
+    width: 70px; height: 100px;
+    bottom: 24%; left: 10%;
+    transform: rotate(8deg);
+    animation-delay: 3s;
+}
+.wp-frame.f4 {
+    width: 100px; height: 140px;
+    bottom: 28%; right: 12%;
+    transform: rotate(-4deg);
+    animation-delay: 4.5s;
+    border-color: rgba(168, 213, 186, .25);
+}
+.wp-frame .wp-frame-corner {
+    position: absolute;
+    width: 8px; height: 8px;
+    background: var(--primary, #F29DBF);
+    box-shadow: 0 0 6px rgba(242, 157, 191, .8);
+}
+.wp-frame .wp-frame-corner.tl { top: -4px; left: -4px; }
+.wp-frame .wp-frame-corner.tr { top: -4px; right: -4px; }
+.wp-frame .wp-frame-corner.bl { bottom: -4px; left: -4px; }
+.wp-frame .wp-frame-corner.br { bottom: -4px; right: -4px; }
+@keyframes wp-frame-float {
+    0%, 100% { transform: translateY(0) rotate(var(--rot, 0deg)); }
+    50%      { transform: translateY(-12px) rotate(var(--rot, 0deg)); }
+}
+
+/* Particulas suaves subindo (dust/sparkle) */
+.wp-particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(242, 157, 191, .5);
+    box-shadow: 0 0 6px rgba(242, 157, 191, .6);
+    opacity: 0;
+    animation: wp-particle-rise 12s linear infinite;
+}
+.wp-particle:nth-child(1) { left: 12%; animation-delay:  0s; }
+.wp-particle:nth-child(2) { left: 28%; animation-delay:  2s; background: rgba(168, 213, 186, .5); box-shadow: 0 0 6px rgba(168, 213, 186, .6); }
+.wp-particle:nth-child(3) { left: 45%; animation-delay:  4s; }
+.wp-particle:nth-child(4) { left: 62%; animation-delay:  6s; background: rgba(168, 213, 186, .5); box-shadow: 0 0 6px rgba(168, 213, 186, .6); }
+.wp-particle:nth-child(5) { left: 78%; animation-delay:  8s; }
+.wp-particle:nth-child(6) { left: 88%; animation-delay: 10s; background: rgba(168, 213, 186, .5); box-shadow: 0 0 6px rgba(168, 213, 186, .6); }
+@keyframes wp-particle-rise {
+    0%   { bottom: -10px; opacity: 0; }
+    10%  { opacity: .9; }
+    90%  { opacity: .4; }
+    100% { bottom: 110%; opacity: 0; }
+}
+
+/* Plaquinhas de "label" flutuantes (vazias, so estilo) */
+.wp-tag {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(242, 157, 191, .35);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border: 1px solid rgba(242, 157, 191, .25);
+    border-radius: 3px;
+    opacity: .5;
+}
+.wp-tag.t1 { top: 12%; left: 14%; transform: rotate(-4deg); }
+.wp-tag.t2 { top: 65%; right: 14%; transform: rotate(3deg); color: rgba(168, 213, 186, .35); border-color: rgba(168, 213, 186, .25); }
+
+/* Linha horizontal sutil tipo "passarela" */
+.wp-runway {
+    position: absolute;
+    bottom: 18%;
+    left: 5%; right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(242, 157, 191, .35), transparent);
+    opacity: .5;
+}
+
+/* =========================================================
+   ELEMENTOS EXCLUSIVOS DASHBOARD (data/HUD)
+   ========================================================= */
+
+/* Eixo de grafico (linhas discretas no fundo) */
+.wp-axis {
+    position: absolute;
+    left: 6%; right: 6%;
+    height: 60%;
+    top: 30%;
+    opacity: .3;
+}
+
+/* Ticks de escala a esquerda (H UD style) */
+.wp-ticks {
+    position: absolute;
+    left: 3%;
+    top: 30%;
+    height: 60%;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(168, 213, 186, .35);
+    opacity: .5;
+}
+.wp-ticks span {
+    display: block;
+    padding-left: 6px;
+    border-left: 1px solid rgba(168, 213, 186, .25);
+    line-height: 1;
+}
+
+/* Mini grafico de barras decorativo (canto inferior direito) */
+.wp-bars {
+    position: absolute;
+    right: 4%;
+    bottom: 14%;
+    width: 200px;
+    height: 90px;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    opacity: .35;
+}
+.wp-bars span {
+    flex: 1;
+    background: linear-gradient(180deg, rgba(242, 157, 191, .55), rgba(168, 213, 186, .25));
+    border-radius: 2px 2px 0 0;
+    animation: wp-bar-pulse 4s ease-in-out infinite;
+}
+.wp-bars span:nth-child(1) { height: 30%; animation-delay: 0s; }
+.wp-bars span:nth-child(2) { height: 55%; animation-delay: .2s; }
+.wp-bars span:nth-child(3) { height: 40%; animation-delay: .4s; }
+.wp-bars span:nth-child(4) { height: 75%; animation-delay: .6s; }
+.wp-bars span:nth-child(5) { height: 60%; animation-delay: .8s; }
+.wp-bars span:nth-child(6) { height: 90%; animation-delay: 1s; }
+.wp-bars span:nth-child(7) { height: 45%; animation-delay: 1.2s; }
+.wp-bars span:nth-child(8) { height: 70%; animation-delay: 1.4s; }
+@keyframes wp-bar-pulse {
+    0%, 100% { opacity: .5; }
+    50%      { opacity: 1; }
+}
+
+/* Terminal window decorativa (canto superior esquerdo) */
+.wp-terminal {
+    position: absolute;
+    top: 24px; left: 24px;
+    width: 180px;
+    padding: 8px 10px;
+    background: rgba(24, 34, 32, .35);
+    border: 1px solid rgba(168, 213, 186, .2);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    line-height: 1.6;
+    color: rgba(168, 213, 186, .45);
+    opacity: .55;
+}
+.wp-terminal .wp-term-head {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+.wp-terminal .wp-term-head span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(242, 157, 191, .5);
+}
+.wp-terminal .wp-term-head span:nth-child(2) { background: rgba(255, 201, 138, .5); }
+.wp-terminal .wp-term-head span:nth-child(3) { background: rgba(168, 213, 186, .5); }
+.wp-terminal .cursor {
+    display: inline-block;
+    width: 6px;
+    background: rgba(168, 213, 186, .7);
+    animation: wp-blink 1s step-end infinite;
+}
+@keyframes wp-blink {
+    0%, 50%   { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+/* Gauge circular (velocimetro) - canto superior direito */
+.wp-gauge {
+    position: absolute;
+    top: 36px; right: 36px;
+    width: 110px; height: 110px;
+    opacity: .35;
+}
+
+/* Linha de progresso animada (rodape) */
+.wp-progress {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    height: 3px;
+    background: rgba(168, 213, 186, .12);
+    border-radius: 2px;
+    overflow: hidden;
+    opacity: .55;
+}
+.wp-progress::after {
+    content: '';
+    display: block;
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(242, 157, 191, .6), rgba(168, 213, 186, .8));
+    border-radius: 2px;
+    animation: wp-progress-slide 3.5s ease-in-out infinite;
+}
+@keyframes wp-progress-slide {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(380%); }
+}
+
+/* Status badges "ONLINE / SYNC" pip */
+.wp-pip {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(242, 157, 191, .45);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: .55;
+}
+.wp-pip::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(168, 213, 186, .7);
+    box-shadow: 0 0 8px rgba(168, 213, 186, .8);
+    animation: wp-blink 1.6s ease-in-out infinite;
+}
+.wp-pip.p1 { top: 70%; left: 8%; }
+.wp-pip.p2 { top: 22%; right: 4%; }
+
+/* Numeros hex flutuantes (sensores) */
+.wp-float-num {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(168, 213, 186, .3);
+    letter-spacing: 1px;
+}
+.wp-float-num:nth-of-type(1) { top: 14%; left: 50%; transform: translateX(-50%); }
+.wp-float-num:nth-of-type(2) { bottom: 8%; left: 18%; color: rgba(242, 157, 191, .3); }
+.wp-float-num:nth-of-type(3) { bottom: 12%; right: 22%; }
+
+/* =========================================================
+   NOVAS CAMADAS - PERSONAGEM (galeria/spotlight)
+   ========================================================= */
+
+/* Refletor secundario lateral (rosa) */
+.wp-side-light {
+    position: absolute;
+    top: 30%; height: 50%;
+    width: 300px;
+    pointer-events: none;
+    opacity: .35;
+    filter: blur(40px);
+}
+.wp-side-light.left  { left: -100px; background: radial-gradient(ellipse 60% 50% at 0% 50%, rgba(242, 157, 191, .25), transparent 70%); }
+.wp-side-light.right { right: -100px; background: radial-gradient(ellipse 60% 50% at 100% 50%, rgba(168, 213, 186, .2), transparent 70%); }
+
+/* Estrelinhas brilhantes (twinkle) - 8 posicoes */
+.wp-twinkle {
+    position: absolute;
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(242, 157, 191, .9);
+    opacity: 0;
+    animation: wp-twinkle 3.5s ease-in-out infinite;
+}
+.wp-twinkle:nth-child(1) { top: 8%;  left: 22%; animation-delay: 0s; }
+.wp-twinkle:nth-child(2) { top: 14%; left: 78%; animation-delay: .7s; }
+.wp-twinkle:nth-child(3) { top: 38%; left: 4%;  animation-delay: 1.4s; }
+.wp-twinkle:nth-child(4) { top: 44%; right: 6%; animation-delay: 2.1s; }
+.wp-twinkle:nth-child(5) { top: 68%; left: 18%; animation-delay: 1.0s; }
+.wp-twinkle:nth-child(6) { top: 72%; right: 14%; animation-delay: 2.8s; }
+.wp-twinkle:nth-child(7) { top: 88%; left: 44%; animation-delay: .4s; }
+.wp-twinkle:nth-child(8) { top: 92%; right: 38%; animation-delay: 1.7s; }
+@keyframes wp-twinkle {
+    0%, 100% { opacity: 0; transform: scale(.6); }
+    50%      { opacity: .9; transform: scale(1.4); }
+}
+
+/* Vignette interna (escurece cantos, foco no centro) */
+.wp-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, rgba(24, 34, 32, .35) 100%);
+    opacity: .6;
+}
+
+/* Numeros de fileira tipo plateia (numeros pequenos nos cantos) */
+.wp-seat-num {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(242, 157, 191, .3);
+    letter-spacing: 1px;
+    opacity: .5;
+}
+.wp-seat-num.s1 { top: 26%; left: 3%; }
+.wp-seat-num.s2 { top: 26%; right: 3%; }
+.wp-seat-num.s3 { bottom: 26%; left: 3%; }
+.wp-seat-num.s4 { bottom: 26%; right: 3%; }
+
+/* Linhas de spot (raios saindo do topo) */
+.wp-spot-rays {
+    position: absolute;
+    top: -50px; left: 50%;
+    width: 500px; height: 500px;
+    margin-left: -250px;
+    opacity: .25;
+    animation: wp-rays-rotate 30s linear infinite;
+}
+@keyframes wp-rays-rotate {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Faixa inferior tipo "palco" */
+.wp-stage {
+    position: absolute;
+    bottom: 8%;
+    left: 15%; right: 15%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(242, 157, 191, .45), rgba(168, 213, 186, .35), transparent);
+    opacity: .4;
+    border-radius: 1px;
+}
+.wp-stage::before {
+    content: '';
+    position: absolute;
+    inset: -8px 10%;
+    background: linear-gradient(180deg, rgba(242, 157, 191, .12), transparent);
+    opacity: .5;
+}
+
+/* Texto holografico lateral (caracteres esparsos) */
+.wp-holo {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: left center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(242, 157, 191, .3);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: .5;
+}
+.wp-holo.left  { left: 18px; }
+.wp-holo.right { right: 18px; transform: translateY(-50%) rotate(90deg); transform-origin: right center; color: rgba(168, 213, 186, .3); }
+
+/* =========================================================
+   NOVAS CAMADAS - DASHBOARD (data/HUD)
+   ========================================================= */
+
+/* Mini sparkline (linha de dados) canto superior */
+.wp-spark {
+    position: absolute;
+    top: 8%; left: 50%;
+    transform: translateX(-50%);
+    width: 220px; height: 36px;
+    opacity: .35;
+}
+
+/* Donut chart (canto inferior esquerdo) */
+.wp-donut {
+    position: absolute;
+    bottom: 12%; left: 4%;
+    width: 90px; height: 90px;
+    opacity: .35;
+}
+
+/* Pings pulsantes (rastreamento) - 4 posicoes */
+.wp-ping {
+    position: absolute;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(168, 213, 186, .8);
+    box-shadow: 0 0 10px rgba(168, 213, 186, .8);
+}
+.wp-ping::before, .wp-ping::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 1px solid rgba(168, 213, 186, .6);
+    border-radius: 50%;
+    animation: wp-ping-expand 2.5s ease-out infinite;
+}
+.wp-ping::after { animation-delay: 1.25s; }
+.wp-ping.p1 { top: 12%; left: 30%; }
+.wp-ping.p2 { top: 36%; right: 32%; background: rgba(242, 157, 191, .8); box-shadow: 0 0 10px rgba(242, 157, 191, .8); }
+.wp-ping.p2::before, .wp-ping.p2::after { border-color: rgba(242, 157, 191, .6); }
+.wp-ping.p3 { bottom: 22%; left: 24%; }
+.wp-ping.p4 { bottom: 38%; right: 18%; background: rgba(242, 157, 191, .8); box-shadow: 0 0 10px rgba(242, 157, 191, .8); }
+.wp-ping.p4::before, .wp-ping.p4::after { border-color: rgba(242, 157, 191, .6); }
+@keyframes wp-ping-expand {
+    0%   { transform: scale(.6); opacity: 1; }
+    100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* Crosshair (mira) centro */
+.wp-crosshair {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 60px; height: 60px;
+    margin: -30px 0 0 -30px;
+    opacity: .25;
+    animation: wp-crosshair-spin 12s linear infinite;
+}
+@keyframes wp-crosshair-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* Tabela/grid numerico canto inferior */
+.wp-grid-num {
+    position: absolute;
+    bottom: 8%; left: 50%;
+    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: repeat(8, 14px);
+    gap: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(168, 213, 186, .35);
+    opacity: .5;
+}
+
+/* Coordenadas nos cantos (GPS style) */
+.wp-coord {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(168, 213, 186, .35);
+    letter-spacing: 1px;
+    opacity: .55;
+}
+.wp-coord.tl { top: 130px; left: 28px; }
+.wp-coord.br { bottom: 90px; right: 28px; color: rgba(242, 157, 191, .35); }
+
+/* Mini line chart canto inferior direito (sobre as barras) */
+.wp-line-chart {
+    position: absolute;
+    right: 4%; bottom: 30%;
+    width: 180px; height: 50px;
+    opacity: .35;
+}
+
+/* Tags de status empilhadas (lateral esquerda) */
+.wp-status-stack {
+    position: absolute;
+    left: 24px; top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: .55;
+}
+.wp-status-stack span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: rgba(168, 213, 186, .5);
+    letter-spacing: 1.2px;
+    padding: 2px 6px;
+    border-left: 2px solid rgba(168, 213, 186, .4);
+    background: rgba(168, 213, 186, .03);
+}
+
+/* Contador regressivo (canto direito) */
+.wp-countdown {
+    position: absolute;
+    right: 28px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: right;
+    opacity: .5;
+}
+.wp-countdown .cd-label {
+    font-size: 9px;
+    color: rgba(242, 157, 191, .45);
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+}
+.wp-countdown .cd-value {
+    font-size: 18px;
+    color: rgba(242, 157, 191, .55);
+    text-shadow: 0 0 8px rgba(242, 157, 191, .4);
+}
+
+/* =========================================================
+   WALLPAPER CYBER LANDING (/) - sobrescreve o body/::before/::after
+   do style.css SÓ quando body tem classe .landing-page.
+   Paleta: rosa #F29DBF + menta #A8D5BA.
+   Estilo: cyber pesado em TODO o fundo (grid + scanlines + hex tile + binario + anéis).
+   Textos dos cards/heroes ficam acima por z-index, ainda legiveis.
+   Tudo via CSS+SVG-data-URI (zero markup no HTML).
+
+   Para tunar (3 vars): mexa APENAS nos valores abaixo. Sem mexer no resto.
+     --lp-grid     = opacidade das linhas do GRID rosa (0.05 sutil, 0.20 forte)
+     --lp-scanline = opacidade das SCANLINES CRT (0.02 sutil, 0.10 forte)
+     --lp-hex      = opacidade do tile de HEXAGONOS (0.15 sutil, 0.50 forte)
+   ========================================================= */
+:root {
+    --lp-grid: .10;
+    --lp-scanline: .04;
+    --lp-hex: .30;
+}
+
+/* === SVGs reutilizaveis como background-image (data URI) === */
+/* Rings canto sup direito */
+.lp-rings {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'><g fill='none' stroke='rgba(242,157,191,.45)'><circle cx='150' cy='150' r='140'/><circle cx='150' cy='150' r='105' stroke='rgba(168,213,186,.45)'/><circle cx='150' cy='150' r='70'/><circle cx='150' cy='150' r='35' stroke='rgba(168,213,186,.45)'/></g><circle cx='150' cy='150' r='4' fill='rgba(242,157,191,.85)'/></svg>");
+    background-repeat: no-repeat;
+    background-size: 280px 280px;
+}
+
+/* Hex mesh canto inf esquerdo */
+.lp-hex {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 260'><g fill='none' stroke='rgba(242,157,191,.55)' stroke-width='1'><polygon points='40,10 70,28 70,62 40,80 10,62 10,28'/><polygon points='100,40 130,58 130,92 100,110 70,92 70,58'/><polygon points='160,10 190,28 190,62 160,80 130,62 130,28'/><polygon points='70,90 100,108 100,142 70,160 40,142 40,108'/><polygon points='130,90 160,108 160,142 130,160 100,142 100,108'/><polygon points='190,90 220,108 220,142 190,160 160,142 160,108'/><polygon points='40,170 70,188 70,222 40,240 10,222 10,188'/><polygon points='100,200 130,218 130,252 100,270 70,252 70,218'/><polygon points='160,170 190,188 190,222 160,240 130,222 130,188'/></g><g fill='rgba(168,213,186,.85)'><circle cx='40' cy='45' r='2'/><circle cx='160' cy='45' r='2'/><circle cx='70' cy='125' r='2'/><circle cx='190' cy='125' r='2'/><circle cx='40' cy='205' r='2'/><circle cx='160' cy='205' r='2'/></g></svg>");
+    background-repeat: no-repeat;
+    background-size: 240px 240px;
+}
+
+/* Circuit topo */
+.lp-circuit {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 200' preserveAspectRatio='none'><g fill='none' stroke='rgba(242,157,191,.4)' stroke-width='1'><path d='M0,40 L240,40 L260,60 L520,60 L540,40 L760,40 L780,60 L1200,60'/><path d='M0,120 L180,120 L200,100 L420,100 L440,120 L680,120 L700,140 L1200,140'/><path d='M0,180 L120,180 L140,160 L320,160 L340,180 L560,180 L580,160 L820,160 L840,180 L1200,180'/></g><g fill='rgba(242,157,191,.85)'><circle cx='240' cy='40' r='3'/><circle cx='520' cy='60' r='3'/><circle cx='760' cy='40' r='3'/><circle cx='180' cy='120' r='3'/><circle cx='420' cy='100' r='3'/><circle cx='680' cy='120' r='3'/><circle cx='320' cy='160' r='3'/><circle cx='560' cy='180' r='3'/><circle cx='820' cy='160' r='3'/></g><g fill='rgba(168,213,186,.85)'><circle cx='120' cy='180' r='2.5'/><circle cx='340' cy='180' r='2.5'/><circle cx='700' cy='140' r='2.5'/></g></svg>");
+    background-repeat: no-repeat;
+    background-size: 100% 200px;
+}
+
+/* Orbitas rodape */
+.lp-orbits {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 900 900'><g fill='none' stroke='rgba(168,213,186,.3)'><circle cx='450' cy='450' r='450' stroke-dasharray='4 6'/><circle cx='450' cy='450' r='390'/><circle cx='450' cy='450' r='330' stroke-dasharray='4 6'/><circle cx='450' cy='450' r='270'/></g><g fill='rgba(242,157,191,.85)'><circle cx='450' cy='60' r='6'/></g><g fill='rgba(168,213,186,.85)'><circle cx='60' cy='450' r='5'/></g></svg>");
+    background-repeat: no-repeat;
+    background-size: 700px 700px;
+}
+
+/* === corpo principal === ESTILO PRINT: cyber pesado em tudo === */
+body.landing-page {
+    background:
+        /* (1) glow rosa topo (mais sutil - Duda pediu ago/2026) */
+        radial-gradient(ellipse 50% 35% at 50% 18%, rgba(242, 157, 191, .10), transparent 70%),
+        /* (2) glow menta canto inf direito */
+        radial-gradient(ellipse 40% 30% at 90% 95%, rgba(168, 213, 186, .10), transparent 70%),
+        /* (3) scanlines CRT (mais visiveis que antes, ~0.04) */
+        repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(242, 157, 191, var(--lp-scanline)) 3px, rgba(242, 157, 191, var(--lp-scanline)) 4px),
+        /* (4) GRID rosa cyber cobrindo tudo (mais visivel que antes) */
+        linear-gradient(rgba(242, 157, 191, var(--lp-grid)) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(242, 157, 191, var(--lp-grid)) 1px, transparent 1px),
+        /* (5) base: topo neutro/cinza-escuro (menos rosa - Duda pediu ago/2026), cai pro verde embaixo */
+        linear-gradient(180deg, #1f2a32 0%, #243330 35%, #1E2A26 100%);
+    background-size: 100% 100%, 100% 100%, auto, 48px 48px, 48px 48px, 100% 100%;
+    background-attachment: fixed, fixed, fixed, fixed, fixed, fixed;
+}
+
+/* === camada cyber decorativa === */
+body.landing-page::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background:
+        /* (A) Hexágonos de fundo (tile repetido, visivel como na print) */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='138'><g fill='none' stroke='rgba(242,157,191,var(--lp-hex))' stroke-width='1'><polygon points='30,4 56,18 56,46 30,60 4,46 4,18'/><polygon points='90,4 116,18 116,46 90,60 64,46 64,18'/><polygon points='60,44 86,58 86,86 60,100 34,86 34,58'/><polygon points='30,84 56,98 56,126 30,140 4,126 4,98'/><polygon points='90,84 116,98 116,126 90,140 64,126 64,98'/></g></svg>") 0 0 / 120px 138px repeat,
+        /* (B) Anéis concêntricos grandes canto inferior direito */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'><g fill='none'><circle cx='250' cy='250' r='240' stroke='rgba(242,157,191,.55)' stroke-width='1.2'/><circle cx='250' cy='250' r='190' stroke='rgba(168,213,186,.45)' stroke-width='1'/><circle cx='250' cy='250' r='140' stroke='rgba(242,157,191,.5)' stroke-width='1'/><circle cx='250' cy='250' r='90' stroke='rgba(168,213,186,.45)' stroke-width='1'/><circle cx='250' cy='250' r='40' stroke='rgba(242,157,191,.6)' stroke-width='1'/></g><circle cx='250' cy='250' r='4' fill='rgba(242,157,191,.9)'/><line x1='10' y1='250' x2='490' y2='250' stroke='rgba(168,213,186,.2)' stroke-dasharray='4 4'/><line x1='250' y1='10' x2='250' y2='490' stroke='rgba(168,213,186,.2)' stroke-dasharray='4 4'/></svg>") bottom -80px right -80px / 520px 520px no-repeat,
+        /* (C) Anéis canto superior esquerdo (menores) */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 280'><g fill='none'><circle cx='140' cy='140' r='130' stroke='rgba(242,157,191,.45)' stroke-width='1'/><circle cx='140' cy='140' r='95' stroke='rgba(168,213,186,.4)' stroke-width='1'/><circle cx='140' cy='140' r='60' stroke='rgba(242,157,191,.45)' stroke-width='1'/></g><circle cx='140' cy='140' r='3' fill='rgba(168,213,186,.85)'/></svg>") top -60px left -60px / 320px 320px no-repeat,
+        /* (D) Linha horizonte cyber larga no meio da tela */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 30' preserveAspectRatio='none'><defs><linearGradient id='hg' x1='0' x2='1'><stop offset='0%' stop-color='rgba(242,157,191,0)'/><stop offset='50%' stop-color='rgba(242,157,191,.6)'/><stop offset='100%' stop-color='rgba(242,157,191,0)'/></linearGradient></defs><line x1='0' y1='15' x2='1200' y2='15' stroke='url(%23hg)' stroke-width='1.5'/></svg>") 45% 0 / 100% 30px no-repeat,
+        /* (E) Linha horizonte menta mais sutil embaixo */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 30' preserveAspectRatio='none'><defs><linearGradient id='hg2' x1='0' x2='1'><stop offset='0%' stop-color='rgba(168,213,186,0)'/><stop offset='50%' stop-color='rgba(168,213,186,.4)'/><stop offset='100%' stop-color='rgba(168,213,186,0)'/></linearGradient></defs><line x1='0' y1='15' x2='1200' y2='15' stroke='url(%23hg2)' stroke-width='1'/></svg>") 72% 0 / 100% 30px no-repeat;
+}
+
+/* === camada de TEXTOS cyber (topo) + BINARIO marquee + brackets === */
+body.landing-page::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background:
+        /* (F) Texto binario canto sup esquerdo (marquee horizontal via repeat) */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='24'><g font-family='JetBrains Mono,monospace' font-size='11' fill='rgba(242,157,191,.55)'><text x='0' y='14'>01010011 01000101 01000011 01010101 01010010 01001001 01010100 01011001</text></g></svg>") top 18px left 0 / 800px 24px no-repeat,
+        /* (G) [REMOVIDO] Texto SECURE_CHANNEL centro topo - Duda pediu pra tirar ago/2026 */
+        /* (H) Texto SECURITY_ALERT.ONLINE canto sup direito */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 24'><g font-family='JetBrains Mono,monospace' font-size='11' fill='rgba(168,213,186,.7)' text-anchor='end'><text x='500' y='14'>SECURITY_ALERT.ONLINE</text><text x='500' y='26' fill='rgba(242,157,191,.55)' font-size='9'>UPTIME // 99.997%</text></g></svg>") top 18px right 0 / 500px 30px no-repeat,
+        /* (I) Binario marquee no rodape (linha longa) */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='22'><g font-family='JetBrains Mono,monospace' font-size='11' fill='rgba(168,213,186,.45)'><text x='0' y='14'>10110 01001 11010 00110 10101 01101 10011 11001 00101 10110 10010 01110 10101 01011 11010 01001 10110 11010 00110 10101 10101 01011 11010 00101 10110 10011 00110 11001 01001 10011</text></g></svg>") bottom 32px left 0 / 1600px 22px no-repeat,
+        /* (J) Brackets cantos (rosa sup, menta inf) */
+        linear-gradient(135deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(225deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(45deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px right 14px / 100px 100px no-repeat,
+        linear-gradient(-45deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px right 14px / 100px 100px no-repeat,
+        linear-gradient(45deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(135deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(-45deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px right 14px / 100px 100px no-repeat,
+        linear-gradient(-135deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px right 14px / 100px 100px no-repeat;
+    opacity: .9;
+}
+
+/* === /about: override que remove os BINARIOS (F) canto sup esq e (I) marquee rodape) ===
+   Duda pediu pra tirar ago/2026. Mantem: brackets (J) + texto SECURITY_ALERT.ONLINE (H).
+   Re-escreve o `background` do ::after inteiro sem as 2 camadas binarias. */
+body.landing-page.about-page::after {
+    background:
+        /* (G) [REMOVIDO] - skip */
+        /* (H) Texto SECURITY_ALERT.ONLINE canto sup direito (PRESERVADO) */
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 24'><g font-family='JetBrains Mono,monospace' font-size='11' fill='rgba(168,213,186,.7)' text-anchor='end'><text x='500' y='14'>SECURITY_ALERT.ONLINE</text><text x='500' y='26' fill='rgba(242,157,191,.55)' font-size='9'>UPTIME // 99.997%</text></g></svg>") top 18px right 0 / 500px 30px no-repeat,
+        /* (J) Brackets cantos - TODOS preservados (rosa sup, menta inf) */
+        linear-gradient(135deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(225deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(45deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px right 14px / 100px 100px no-repeat,
+        linear-gradient(-45deg, transparent 14px, rgba(242, 157, 191, .6) 14px, rgba(242, 157, 191, .6) 15px, transparent 15px) top 14px right 14px / 100px 100px no-repeat,
+        linear-gradient(45deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(135deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px left 14px / 100px 100px no-repeat,
+        linear-gradient(-45deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px right 14px / 100px 100px no-repeat,
+        linear-gradient(-135deg, transparent 14px, rgba(168, 213, 186, .6) 14px, rgba(168, 213, 186, .6) 15px, transparent 15px) bottom 14px right 14px / 100px 100px no-repeat;
+}
+
+/* conteudo principal ACIMA dos pseudos (cyber fica atras) */
+body.landing-page > .navbar,
+body.landing-page > main,
+body.landing-page > footer {
+    position: relative;
+    z-index: 10;
+}
+
+/* =========================================================
+   ELEMENTOS FLUTUANTES (markup injetado no index.html)
+   - 2 blobs radial-gradient (rosa + menta) flutuando devagar
+   - 2 anéis com rotate + scale lento
+   - 4 hex strings subindo (lp-float-num padrao do projeto)
+   - 6 sparkles subindo (lp-particle)
+   - pointer-events: none em tudo (NAO bloqueia cliques)
+   - 3 vars de opacidade: --lp-blob, --lp-ring, --lp-float-num
+   ========================================================= */
+.lp-floats,
+.lp-floats * {
+    pointer-events: none !important;
+    user-select: none !important;
+}
+.lp-floats {
+    position: fixed;
+    inset: 0;
+    z-index: 1;          /* atras do conteudo (z-10), a frente do body bg */
+    overflow: hidden;
+}
+
+/* blobs: 2 grandes, flutuando lento (rosa + menta) */
+.lp-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: var(--lp-blob, .35);
+    will-change: transform;
+}
+.lp-blob-r {
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(242, 157, 191, .65), transparent 70%);
+    top: -100px; left: 50%;
+    margin-left: -260px;
+    animation: lp-float-1 28s ease-in-out infinite;
+}
+.lp-blob-m {
+    width: 480px; height: 480px;
+    background: radial-gradient(circle, rgba(168, 213, 186, .5), transparent 70%);
+    bottom: -140px; right: -100px;
+    animation: lp-float-2 34s ease-in-out infinite;
+}
+@keyframes lp-float-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33%      { transform: translate(80px, 40px) scale(1.08); }
+    66%      { transform: translate(-60px, 80px) scale(.94); }
+}
+@keyframes lp-float-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50%      { transform: translate(-100px, -60px) scale(1.1); }
+}
+
+/* aneis flutuantes: rotacao + scale lento (2 posicoes) */
+.lp-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(242, 157, 191, .5);
+    opacity: var(--lp-ring, .4);
+    will-change: transform;
+}
+.lp-ring-tl {
+    width: 160px; height: 160px;
+    top: 8%; left: 4%;
+    border-color: rgba(168, 213, 186, .5);
+    animation: lp-ring-spin 38s linear infinite;
+}
+.lp-ring-br {
+    width: 240px; height: 240px;
+    bottom: 6%; right: 5%;
+    border-style: dashed;
+    border-color: rgba(242, 157, 191, .45);
+    animation: lp-ring-pulse 14s ease-in-out infinite;
+}
+@keyframes lp-ring-spin {
+    from { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(180deg) scale(1.12); }
+    to   { transform: rotate(360deg) scale(1); }
+}
+@keyframes lp-ring-pulse {
+    0%, 100% { transform: scale(1); opacity: .35; }
+    50%      { transform: scale(1.18); opacity: .55; }
+}
+
+/* hex strings subindo (lp-float-num style do projeto) */
+.lp-hexn {
+    position: absolute;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(242, 157, 191, .55);
+    letter-spacing: 1px;
+    text-shadow: 0 0 6px rgba(242, 157, 191, .4);
+    opacity: 0;
+    animation: lp-hex-rise 16s linear infinite;
+    will-change: transform, opacity;
+}
+.lp-hexn.h1 { left: 12%; animation-delay: 0s;  color: rgba(168, 213, 186, .55); text-shadow: 0 0 6px rgba(168, 213, 186, .4); }
+.lp-hexn.h2 { left: 28%; animation-delay: 4s;  color: rgba(242, 157, 191, .55); }
+.lp-hexn.h3 { left: 62%; animation-delay: 8s;  color: rgba(168, 213, 186, .55); }
+.lp-hexn.h4 { left: 82%; animation-delay: 12s; color: rgba(242, 157, 191, .55); }
+@keyframes lp-hex-rise {
+    0%   { bottom: -20px; opacity: 0; transform: translateX(0); }
+    10%  { opacity: .9; }
+    50%  { transform: translateX(20px); }
+    90%  { opacity: .4; }
+    100% { bottom: 110%; opacity: 0; transform: translateX(-15px); }
+}
+
+/* sparkles subindo (dots brilhantes) */
+.lp-spark {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: rgba(242, 157, 191, .9);
+    box-shadow: 0 0 8px rgba(242, 157, 191, .8);
+    opacity: 0;
+    animation: lp-spark-twinkle 6s ease-in-out infinite;
+    will-change: transform, opacity;
+}
+.lp-spark.s1 { top: 20%; left: 18%; animation-delay: 0s; }
+.lp-spark.s2 { top: 30%; left: 72%; animation-delay: 1s; background: rgba(168, 213, 186, .9); box-shadow: 0 0 8px rgba(168, 213, 186, .8); }
+.lp-spark.s3 { top: 55%; left: 32%; animation-delay: 2s; }
+.lp-spark.s4 { top: 60%; left: 88%; animation-delay: 3s; background: rgba(168, 213, 186, .9); box-shadow: 0 0 8px rgba(168, 213, 186, .8); }
+.lp-spark.s5 { top: 78%; left: 50%; animation-delay: 4s; }
+.lp-spark.s6 { top: 85%; left: 22%; animation-delay: 5s; background: rgba(168, 213, 186, .9); box-shadow: 0 0 8px rgba(168, 213, 186, .8); }
+@keyframes lp-spark-twinkle {
+    0%, 100% { opacity: 0; transform: scale(.6) translateY(0); }
+    50%      { opacity: 1; transform: scale(1.4) translateY(-20px); }
+}
+
+/* particles (dots brilhantes que sobem) - 4 extras (p1-p4) */
+.lp-particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: rgba(242, 157, 191, .6);
+    box-shadow: 0 0 10px rgba(242, 157, 191, .5);
+    opacity: 0;
+    animation: lp-particle-rise 14s linear infinite;
+    will-change: transform, opacity;
+}
+.lp-particle.p1 { left:  8%; animation-delay: 1s;  background: rgba(168, 213, 186, .6); box-shadow: 0 0 10px rgba(168, 213, 186, .5); }
+.lp-particle.p2 { left: 22%; animation-delay: 5s;  background: rgba(242, 157, 191, .6); }
+.lp-particle.p3 { left: 68%; animation-delay: 9s;  background: rgba(168, 213, 186, .6); box-shadow: 0 0 10px rgba(168, 213, 186, .5); }
+.lp-particle.p4 { left: 88%; animation-delay: 11s; background: rgba(242, 157, 191, .6); }
+@keyframes lp-particle-rise {
+    0%   { bottom: -10px; opacity: 0; transform: translateX(0); }
+    10%  { opacity: .8; }
+    50%  { transform: translateX(15px); }
+    90%  { opacity: .3; }
+    100% { bottom: 110%; opacity: 0; transform: translateX(-10px); }
+}
+
+/* data-stream: risca fina horizontal que cruza a tela, estilo terminal */
+.lp-stream {
+    position: absolute;
+    top: 50%;
+    left: -200px;
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(242, 157, 191, .5) 50%, transparent);
+    opacity: 0;
+    animation: lp-stream-sweep 18s linear infinite;
+    will-change: transform, opacity;
+}
+@keyframes lp-stream-sweep {
+    0%   { transform: translateX(0); opacity: 0; }
+    5%   { opacity: .7; }
+    50%  { opacity: .7; }
+    95%  { opacity: .4; }
+    100% { transform: translateX(calc(100vw + 200px)); opacity: 0; }
+}
+
+/* === elementos novos (ago/2026): parecidos com /register, mas distintos ===
+   - 2 mini-escudos (rosa + menta) flutuando (vs escudo grande fixo do /register)
+   - 2 cadeados menores (vs lock fixo do /register)
+   - 2 redes de nos (6 pontos + linhas) flutuando (vs stage-network grande do /register)
+   - 2 hexagonos soltos com rotate (vs stage-hex que ja rotaciona)
+   - 1 mini terminal com "$ >> _" piscando (vs stage-icon--terminal do /register)
+   - 1 fingerprint simplificado (vs stage-icon--fp completo do /register)
+   - opacidade base .30 (sutis) - NAO competir com conteudo
+   - reusam @keyframes stageFloatY 13s do style.css (NAO crio keyframe nova)
+   === */
+
+/* ESCUDOS mini: shield outline simples, sem o checkmark do /register */
+.lp-shield {
+    position: absolute;
+    width: 56px;
+    height: 64px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: .35;
+    pointer-events: none;
+    will-change: transform;
+}
+.lp-shield-r {
+    top: 32%;
+    left: 8%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 70'><path d='M30 4 L56 14 V36 C56 52 44 64 30 68 C16 64 4 52 4 36 V14 Z' fill='none' stroke='%23F29DBF' stroke-width='1.5'/><circle cx='30' cy='34' r='3' fill='%23F29DBF' opacity='.7'/></svg>");
+    animation: stageFloatY 13s ease-in-out infinite;
+}
+.lp-shield-m {
+    top: 62%;
+    right: 10%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 70'><path d='M30 4 L56 14 V36 C56 52 44 64 30 68 C16 64 4 52 4 36 V14 Z' fill='none' stroke='%23A8D5BA' stroke-width='1.5'/><path d='M20 34 L28 42 L42 26' fill='none' stroke='%23A8D5BA' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -6s;
+}
+
+/* CADEADOS: outline simples, sem o detalhe do retangulo do /register */
+.lp-lock {
+    position: absolute;
+    width: 36px;
+    height: 44px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: .30;
+    pointer-events: none;
+    will-change: transform;
+}
+.lp-lock-1 {
+    top: 14%;
+    right: 18%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 50'><rect x='6' y='22' width='28' height='24' rx='3' fill='none' stroke='%23F29DBF' stroke-width='1.4'/><path d='M12 22 V16 a8 8 0 0 1 16 0 V22' fill='none' stroke='%23F29DBF' stroke-width='1.6'/><circle cx='20' cy='33' r='2' fill='%23F29DBF'/></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -3s;
+}
+.lp-lock-2 {
+    bottom: 22%;
+    left: 14%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 50'><rect x='6' y='22' width='28' height='24' rx='3' fill='none' stroke='%23A8D5BA' stroke-width='1.4'/><path d='M12 22 V16 a8 8 0 0 1 16 0 V22' fill='none' stroke='%23A8D5BA' stroke-width='1.6'/><rect x='18' y='32' width='4' height='8' rx='1' fill='%23A8D5BA'/></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -8s;
+}
+
+/* REDES DE NOS: 6 pontos conectados por linhas, sem o nucleo central do /register */
+.lp-net {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: .28;
+    pointer-events: none;
+    will-change: transform;
+}
+.lp-net-1 {
+    top: 18%;
+    right: 8%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 110 110'><g fill='none' stroke='%23F29DBF' stroke-width='.8' opacity='.7'><line x1='55' y1='55' x2='20' y2='25'/><line x1='55' y1='55' x2='90' y2='25'/><line x1='55' y1='55' x2='95' y2='60'/><line x1='55' y1='55' x2='80' y2='95'/><line x1='55' y1='55' x2='25' y2='90'/><line x1='55' y1='55' x2='15' y2='55'/></g><g fill='%23F29DBF'><circle cx='20' cy='25' r='2.5'/><circle cx='90' cy='25' r='2.5'/><circle cx='95' cy='60' r='2.5'/><circle cx='80' cy='95' r='2.5'/><circle cx='25' cy='90' r='2.5'/><circle cx='15' cy='55' r='2.5'/></g><g fill='%23A8D5BA'><circle cx='55' cy='55' r='3'/></g></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -4s;
+}
+.lp-net-2 {
+    bottom: 18%;
+    left: 6%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 110 110'><g fill='none' stroke='%23A8D5BA' stroke-width='.8' opacity='.7'><line x1='55' y1='55' x2='25' y2='30'/><line x1='55' y1='55' x2='85' y2='35'/><line x1='55' y1='55' x2='90' y2='80'/><line x1='55' y1='55' x2='55' y2='95'/><line x1='55' y1='55' x2='20' y2='80'/><line x1='55' y1='55' x2='50' y2='15'/></g><g fill='%23A8D5BA'><circle cx='25' cy='30' r='2.5'/><circle cx='85' cy='35' r='2.5'/><circle cx='90' cy='80' r='2.5'/><circle cx='55' cy='95' r='2.5'/><circle cx='20' cy='80' r='2.5'/><circle cx='50' cy='15' r='2.5'/></g><g fill='%23F29DBF'><circle cx='55' cy='55' r='3'/></g></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -9s;
+}
+
+/* HEXAGONOS soltos: 1 hexagono outline com glow, flutua E rotaciona (mais do que /register) */
+.lp-hex-solo {
+    position: absolute;
+    width: 70px;
+    height: 80px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: .30;
+    pointer-events: none;
+    will-change: transform;
+}
+.lp-hex-solo-1 {
+    top: 48%;
+    left: 20%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 80'><polygon points='35,4 65,21 65,59 35,76 5,59 5,21' fill='none' stroke='%23F29DBF' stroke-width='1.4'/><polygon points='35,18 53,28 53,52 35,62 17,52 17,28' fill='none' stroke='%23A8D5BA' stroke-width='1' opacity='.6'/></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -5s, lp-hex-rotate 24s linear infinite;
+}
+.lp-hex-solo-2 {
+    top: 22%;
+    left: 42%;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 70 80'><polygon points='35,4 65,21 65,59 35,76 5,59 5,21' fill='none' stroke='%23A8D5BA' stroke-width='1.4'/><polygon points='35,18 53,28 53,52 35,62 17,52 17,28' fill='none' stroke='%23F29DBF' stroke-width='1' opacity='.6'/></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -10s, lp-hex-rotate-reverse 30s linear infinite;
+}
+@keyframes lp-hex-rotate {
+    from { transform: rotate(0deg) translateY(0); }
+    50%  { transform: rotate(180deg) translateY(-8px); }
+    to   { transform: rotate(360deg) translateY(0); }
+}
+@keyframes lp-hex-rotate-reverse {
+    from { transform: rotate(360deg) translateY(0); }
+    50%  { transform: rotate(180deg) translateY(-10px); }
+    to   { transform: rotate(0deg) translateY(0); }
+}
+
+/* MINI TERMINAL com cursor piscando (texto inline, nao SVG) */
+.lp-terminal-m {
+    position: absolute;
+    top: 70%;
+    right: 22%;
+    padding: 4px 8px;
+    background: rgba(24, 34, 32, .55);
+    border: 1px solid rgba(168, 213, 186, .35);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(168, 213, 186, .7);
+    letter-spacing: .5px;
+    opacity: .35;
+    pointer-events: none;
+    will-change: transform;
+    animation: stageFloatY 13s ease-in-out infinite -7s;
+}
+.lp-terminal-m::before {
+    content: '$ scan --target';
+    color: rgba(168, 213, 186, .8);
+    display: block;
+}
+.lp-terminal-m::after {
+    content: '>> _';
+    color: rgba(242, 157, 191, .85);
+    animation: lp-cursor-blink 1.2s step-end infinite;
+    display: block;
+    margin-top: 1px;
+}
+@keyframes lp-cursor-blink {
+    0%, 50%   { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+/* FINGERPRINT simplificado: 3 curvas, NAO 5 como no /register */
+.lp-fp-m {
+    position: absolute;
+    width: 48px;
+    height: 56px;
+    top: 8%;
+    left: 30%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    opacity: .28;
+    pointer-events: none;
+    will-change: transform;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 56'><g fill='none' stroke='%23F29DBF' stroke-width='1.1' opacity='.8'><path d='M10 50 C10 32, 14 22, 24 18 C34 14, 40 24, 40 32'/><path d='M16 52 C16 38, 20 28, 24 26 C30 24, 34 30, 34 38 C34 46, 30 50, 26 50'/><path d='M22 52 C22 42, 26 36, 28 34'/></g></svg>");
+    animation: stageFloatY 13s ease-in-out infinite -11s;
+}
+
+/* z-index: o wrapper lp-floats fica ATRAS do conteudo (z-10) e a FRENTE do body bg */
+body.landing-page .landing,
+body.landing-page .about-page { position: relative; z-index: 5; }
+
+/* === reducao de movimento === */
+@media (prefers-reduced-motion: reduce) {
+    .wp-grid, .wp-blob, .wp-frame, .wp-particle, .wp-tag,
+    .wp-bars span, .wp-progress::after, .wp-terminal .cursor,
+    .wp-pip::before, .wp-gauge *, .wp-twinkle, .wp-spot-rays,
+    .wp-ping::before, .wp-ping::after, .wp-crosshair,
+    .lp-blob, .lp-ring, .lp-hexn, .lp-spark, .lp-particle, .lp-stream,
+    .lp-shield, .lp-lock, .lp-net, .lp-hex-solo, .lp-terminal-m,
+    .lp-terminal-m::after, .lp-fp-m {
+        animation: none !important;
+    }
+}

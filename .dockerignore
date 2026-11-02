@@ -1,0 +1,24 @@
+# Somente src/ e necessario no build
+.git
+.github
+.gitignore
+.gitleaksignore
+.trivyignore
+.coverage
+.pytest_cache
+docs/
+tests/
+README.md
+Dockerfile
+.dockerignore
+**/__pycache__
+**/*.py[cod]
+**/*.db
+**/*.sqlite*
+**/instance/
+**/.env
+**/.env.*
+venv/
+.venv/
+src/static/img/avatars/*
+!src/static/img/avatars/.gitkeep

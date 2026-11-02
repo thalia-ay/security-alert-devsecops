@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% block title %}Cursos - Security Alert{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/wallpaper.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="wallpaper wallpaper--dash" aria-hidden="true">
+    <div class="wp-grid"></div>
+    <div class="wp-scanlines"></div>
+
+    <div class="wp-blob wp-blob-1"></div>
+    <div class="wp-blob wp-blob-2"></div>
+
+    <div class="wp-terminal">
+        <div class="wp-term-head"><span></span><span></span><span></span></div>
+        &gt; sys.status<span class="cursor">_</span><br>
+        &gt; metrics:ok<br>
+        &gt; net.up
+    </div>
+
+    <svg class="wp-gauge" viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="55" cy="55" r="44" fill="none" stroke="rgba(168,213,186,.18)" stroke-width="3"/>
+        <circle cx="55" cy="55" r="44" fill="none" stroke="rgba(242,157,191,.55)" stroke-width="3"
+                stroke-dasharray="207 276" stroke-linecap="round" transform="rotate(-90 55 55)"/>
+        <circle cx="55" cy="55" r="32" fill="none" stroke="rgba(168,213,186,.25)" stroke-width="1" stroke-dasharray="3 4"/>
+        <text x="55" y="58" text-anchor="middle" fill="rgba(242,157,191,.7)" font-family="JetBrains Mono" font-size="14" font-weight="700">75%</text>
+    </svg>
+
+    <svg class="wp-axis" viewBox="0 0 100 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="rgba(168,213,186,.18)" stroke-width="0.3">
+            <line x1="0" y1="10" x2="100" y2="10" stroke-dasharray="1 3"/>
+            <line x1="0" y1="20" x2="100" y2="20" stroke-dasharray="1 3"/>
+            <line x1="0" y1="30" x2="100" y2="30" stroke-dasharray="1 3"/>
+            <line x1="0" y1="40" x2="100" y2="40" stroke-dasharray="1 3"/>
+            <line x1="0" y1="50" x2="100" y2="50" stroke-dasharray="1 3"/>
+        </g>
+    </svg>
+
+    <div class="wp-ticks">
+        <span>100</span><span>075</span><span>050</span><span>025</span><span>000</span>
+    </div>
+
+    <div class="wp-bars">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="wp-progress"></div>
+
+    <div class="wp-pip p2">SYNC_OK</div>
+
+    <div class="wp-float-num">SYS // 0x4F2A</div>
+    <div class="wp-float-num">UPTIME 99.7%</div>
+    <div class="wp-float-num">DATA_RATE 2.4GB/s</div>
+
+    <svg class="wp-spark" viewBox="0 0 220 36" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline fill="none" stroke="rgba(168,213,186,.6)" stroke-width="1.2"
+                  points="0,28 18,22 36,26 54,14 72,20 90,10 108,18 126,8 144,16 162,6 180,14 198,4 220,12"/>
+        <polyline fill="none" stroke="rgba(242,157,191,.4)" stroke-width="1" stroke-dasharray="2 3"
+                  points="0,32 18,28 36,30 54,24 72,28 90,22 108,26 126,20 144,24 162,18 180,22 198,16 220,20"/>
+    </svg>
+
+    <svg class="wp-donut" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(168,213,186,.18)" stroke-width="6"/>
+        <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(242,157,191,.65)" stroke-width="6"
+                stroke-dasharray="170 226" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+        <text x="45" y="48" text-anchor="middle" fill="rgba(168,213,186,.7)" font-family="JetBrains Mono" font-size="11" font-weight="700">75%</text>
+    </svg>
+
+    <span class="wp-ping p1"></span>
+    <span class="wp-ping p2"></span>
+    <span class="wp-ping p3"></span>
+    <span class="wp-ping p4"></span>
+
+    <svg class="wp-crosshair" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="rgba(168,213,186,.5)" stroke-width="1" fill="none">
+            <circle cx="30" cy="30" r="22"/>
+            <circle cx="30" cy="30" r="14" stroke-dasharray="3 3"/>
+            <line x1="30" y1="2"  x2="30" y2="14"/>
+            <line x1="30" y1="46" x2="30" y2="58"/>
+            <line x1="2"  y1="30" x2="14" y2="30"/>
+            <line x1="46" y1="30" x2="58" y2="30"/>
+        </g>
+        <circle cx="30" cy="30" r="2" fill="rgba(242,157,191,.7)"/>
+    </svg>
+
+    <div class="wp-grid-num">
+        <span>01</span><span>02</span><span>03</span><span>04</span>
+        <span>05</span><span>06</span><span>07</span><span>08</span>
+        <span>09</span><span>10</span><span>11</span><span>12</span>
+        <span>13</span><span>14</span><span>15</span><span>16</span>
+    </div>
+
+    <div class="wp-coord tl">LAT -23.5505 / LON -46.6333</div>
+    <div class="wp-coord br">NODE.04 / SECTOR-B / 0x7E</div>
+
+    <svg class="wp-line-chart" viewBox="0 0 180 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline fill="none" stroke="rgba(242,157,191,.7)" stroke-width="1.5"
+                  points="0,40 20,32 40,36 60,22 80,28 100,14 120,20 140,8 160,16 180,4"/>
+        <g fill="rgba(242,157,191,.9)">
+            <circle cx="60" cy="22" r="2"/><circle cx="100" cy="14" r="2"/>
+            <circle cx="140" cy="8" r="2"/><circle cx="180" cy="4" r="2"/>
+        </g>
+    </svg>
+
+    <div class="wp-status-stack">
+        <span>SYS_OK</span>
+        <span>NET_UP</span>
+        <span>ENC_AES</span>
+        <span>FIREWALL</span>
+    </div>
+
+    <div class="wp-countdown">
+        <div class="cd-label">NEXT_SCAN</div>
+        <div class="cd-value">00:42:18</div>
+    </div>
+</div>
+
+<div class="desafios-page">
+    <div class="desafios-header">
+        <h1>Cursos</h1>
+        <p>Modulos extras para voce aprofundar seus conhecimentos em seguranca cibernetica.</p>
+    </div>
+
+    <div class="modulos-list">
+        {% for modulo in modulos %}
+        <div class="modulo-card">
+            <button class="modulo-header" type="button" aria-expanded="false" aria-controls="modulo-{{ loop.index }}">
+                <span class="modulo-icon"><img src="{{ url_for('static', filename='img/badges/pasta.png') }}" alt="" style="width:34px;height:32px;vertical-align:middle;object-fit:contain;"></span>
+                <span class="modulo-titulo">{{ modulo.titulo }}</span>
+                <span class="modulo-toggle">+</span>
+            </button>
+            <div class="modulo-body" id="modulo-{{ loop.index }}" hidden>
+                <ul class="atividades-list">
+                    {% for atividade in modulo.atividades %}
+                    <li class="atividade-item">
+                        <span class="atividade-bullet"><img src="{{ url_for('static', filename='img/badges/baixar.png') }}" alt="" style="width:20px;height:20px;vertical-align:middle;object-fit:contain;"></span>
+                        <a href="{{ atividade.url }}" class="atividade-link" {% if atividade.download %}download{% endif %}>{{ atividade.titulo }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+(function() {
+    var headers = document.querySelectorAll('.modulo-header');
+    headers.forEach(function(h) {
+        h.addEventListener('click', function() {
+            var body = document.getElementById(h.getAttribute('aria-controls'));
+            var expanded = h.getAttribute('aria-expanded') === 'true';
+            h.setAttribute('aria-expanded', !expanded);
+            body.hidden = expanded;
+            h.querySelector('.modulo-toggle').textContent = expanded ? '+' : '-';
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{
+  "group_id": "d1fe6911-d8fb-455c-a655-4a3988938257",
+  "states": [
+    {
+      "character": {
+        "id": "3a36f39d-41f7-4f8e-bbbd-e78c6e91551c",
+        "name": "Idle",
+        "prompt": "Create a full-body chibi pixel art character inspired by the reference image. Depict a young man with thick, wavy, voluminous black hair, slightly messy and naturally parted, with soft curls framing his forehead. He has a slim build, youthful face, dark eyebrows, a subtle thin mustache and small goatee, and a calm, slightly serious expression.\n\nHe is wearing a black leather jacket with a relaxed fit, open in the front, over a plain white crew-neck T-shirt. Add a thin silver chain necklace around his neck. He wears light blue, loose-fitting jeans with a black belt and a visible metallic buckle. His pose is casual and confident: one hand resting near his belt/waist while the other holds a dark smartphone in front of his face as if taking a mirror selfie.\n\nTranslate the character into a highly appealing 8-bit/16-bit inspired pixel art style, with a large chibi head, simplified facial features, short proportions, small hands and feet, and a compact body. Preserve the recognizable hairstyle, outfit, color palette, and overall silhouette from the reference while making the design distinctly cute and pixelated.\n\nUse crisp square pixels, clean pixel clusters, limited retro color palette, subtle dithering, and carefully placed highlights and shadows. The black leather jacket should have small pixel highlights suggesting a slightly glossy texture, while the white shirt and light blue jeans should remain clearly distinguishable. Give the hair layered pixel clusters with dark and medium-black tones for depth.\n\nCentered character, full body visible, front-facing three-quarter pose, transparent or simple neutral background, polished game-sprite aesthetic, charming proportions, high detail for pixel art, sharp edges, no smooth vector lines, no photorealism, no blur.",
+        "size": {
+          "width": 64,
+          "height": 64
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-08-19T13:43:17.915918+00:00"
+      },
+      "folder": "Idle",
+      "frames": {
+        "rotations": {
+          "south": "Idle/rotations/south.png",
+          "south-east": "Idle/rotations/south-east.png",
+          "east": "Idle/rotations/east.png",
+          "north-east": "Idle/rotations/north-east.png",
+          "north": "Idle/rotations/north.png",
+          "north-west": "Idle/rotations/north-west.png",
+          "west": "Idle/rotations/west.png",
+          "south-west": "Idle/rotations/south-west.png"
+        },
+        "animations": {}
+      }
+    }
+  ],
+  "export_version": "3.1",
+  "export_date": "2026-08-19T13:58:42.864768"
+}
