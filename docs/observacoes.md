@@ -35,37 +35,60 @@
 
 ## 3. Resultados da esteira no GitHub Actions
 
-> [a preencher após primeira execução do pipeline]. Usar os artifacts `relatorio-0N-*` de cada execução.
+**Execução #1:** [https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41516785203](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41516785203)
+- Commit `943cfdf`, branch `main`.
+- Status **Success**, duração total **5m 9s**, **12 artifacts**.
+- Os números abaixo foram extraídos dos artifacts `relatorio-0N-*` dessa execução.
+- Prints em [`evidencias/`](evidencias/).
 
 ### 3.1 Gitleaks
-| Achado | Onde | Classificação | Ação tomada (link do commit) | Resultado (link da execução) |
+| Achado | Onde | Classificação | Ação tomada | Resultado |
 |---|---|---|---|---|
-| [a preencher após primeira execução do pipeline] | | | | |
+| Nenhum segredo (`no leaks found`; 2 commits, ~535 KB analisados) | Histórico completo | — | Nenhuma necessária. A supressão inline em `tests/test_app.py` está justificada na seção 2. | `gitleaks.json` vazio ([print](evidencias/03-gitleaks.png)) |
 
 ### 3.2 Semgrep
-| Achado | Onde | Classificação | Ação tomada (link do commit) | Resultado (link da execução) |
+| Achado | Onde | Classificação | Ação tomada | Resultado |
 |---|---|---|---|---|
-| [a preencher após primeira execução do pipeline] | | | | |
+| `Findings: 0 (0 blocking)`: 44 arquivos e 534 regras (`p/default`, `p/owasp-top-ten`, `p/python`) | Repositório | — | Os achados reais foram corrigidos antes do push (seção 2). Única exclusão: `django-no-csrf-token` (falso positivo). | `semgrep.json` com 0 resultados ([print](evidencias/04-semgrep.png)) |
 
-### 3.3 Build / pip-audit
-| Achado | Onde | Classificação | Ação tomada (link do commit) | Resultado (link da execução) |
+### 3.3 Build / pip-audit / testes
+| Achado | Onde | Classificação | Ação tomada | Resultado |
 |---|---|---|---|---|
-| [a preencher após primeira execução do pipeline] | | | | |
+| pip-audit: 0 vulnerabilidades | `src/requirements.txt` (lock com hashes) | — | Nenhuma | `pip-audit.json` |
+| 15 testes `PASSED` em 1,46 s. Cobertura de `src/app.py`: 34% (836 statements, 548 não cobertos). | `tests/test_app.py` | Observação de qualidade | Os testes cobrem os controles de segurança (CSRF, cabeçalhos, upload, redirect). As rotas do jogo não têm testes. | [print 1](evidencias/05-testes-parte1.png), [print 2](evidencias/05-testes-parte2.png) |
 
 ### 3.4 Trivy fs (SCA)
-| Achado | Onde | Classificação | Ação tomada (link do commit) | Resultado (link da execução) |
+| Achado | Onde | Classificação | Ação tomada | Resultado |
 |---|---|---|---|---|
-| [a preencher após primeira execução do pipeline] | | | | |
+| 0 vulnerabilidades em `src/requirements.txt`; 0 misconfigurations no `Dockerfile` | Repositório | — | Nenhuma | `trivy-fs.txt` ([print](evidencias/06-trivy-fs.png)) |
 
-### 3.5 Trivy image
-| Achado | Onde | Classificação | Ação tomada (link do commit) | Resultado (link da execução) |
-|---|---|---|---|---|
-| [a preencher após primeira execução do pipeline] | | | | |
+### 3.5 Docker build + GHCR e Trivy image
+Imagem publicada: `ghcr.io/thalia-ay/security-alert-devsecops:943cfdf32e33ed6a5f2298b2dabdce819623e173`, digest `sha256:d4f872f49981b890ba61c11225a74950ddaac711ba73966cc9aaa46c532a9a0d`. A assinatura com Cosign terminou com `success` ([print do pacote](evidencias/07-ghcr.png)).
 
-### 3.6 OWASP ZAP
-| Achado | Onde | Classificação | Ação tomada (link do commit) | Resultado (link da execução) |
+| Achado | Onde | Classificação | Ação tomada | Resultado |
 |---|---|---|---|---|
-| [a preencher após primeira execução do pipeline] | | | | |
+| 185 CVEs no SO base (UNKNOWN 8, LOW 61, MEDIUM 71, **HIGH 45**, CRITICAL 0) | Pacotes Debian 13.7 da imagem `python:3.12-slim` | **Risco aceito.** Nenhuma das HIGH tem correção publicada pelo Debian (status *affected* / *will_not_fix*). O Dockerfile já aplica `apt-get upgrade`. | Gate com `--ignore-unfixed`. As CVEs voltam a bloquear automaticamente quando surgir uma correção. Melhoria futura: avaliar uma base distroless. | `trivy-image.json` (filtrado): 0 HIGH/CRITICAL com correção ([print](evidencias/08-trivy-image.png)) |
+| 0 CVEs nas bibliotecas Python da imagem | `site-packages` (flask, werkzeug, gunicorn…) | — | Nenhuma | `trivy-image.txt` |
+
+### 3.6 OWASP ZAP (Baseline, informativo)
+Resultado: `FAIL-NEW: 0  WARN-NEW: 9  PASS: 62`. São 0 alertas High e 3 Medium, conforme `report_json.json` ([print 1](evidencias/09-zap-parte1.png), [print 2](evidencias/09-zap-parte2.png)).
+
+| Achado (risco ZAP) | Onde | Classificação | Ação tomada / justificativa | Resultado |
+|---|---|---|---|---|
+| 10055 CSP: `script-src 'unsafe-inline'` (**Medium**) | 5 URLs (`/`, `/login`, `/register`, `/about`) | **Risco aceito** (já previsto na seção de supressões) | Os templates do jogo usam muitos scripts inline. Correção planejada: mover para arquivos `.js` e usar nonce. | Permanece |
+| 10055 CSP: `style-src 'unsafe-inline'` (**Medium**) | 5 URLs | **Risco aceito** | Estilos inline nos templates. Mesma correção planejada. | Permanece |
+| 90003 Sub Resource Integrity Attribute Missing (**Medium**) | `<link>` para o Google Fonts | **Risco aceito** | O CSS do Google Fonts é gerado dinamicamente por navegador, então um hash SRI fixo quebraria o carregamento. Alternativa futura: hospedar a fonte localmente. | Permanece |
+| 90004 Cross-Origin-Embedder-Policy ausente (Low) | 5 URLs | Hardening opcional | Não aplicado: COEP `require-corp` bloquearia as fontes de terceiros | Permanece |
+| 90005 Sec-Fetch-* ausentes (Informational) | Requisições do próprio scanner | **Falso positivo** | São cabeçalhos que o *navegador* envia; o ZAP não os envia | — |
+| 10094, 10027, 10049, 10111, 10112 (Informational) | Várias | Informativo | Identificação de login e sessão, comentários e cache. Sem impacto. | — |
+
+O ZAP **não** reportou problemas de cookie (Secure/HttpOnly), anti-clickjacking, X-Content-Type-Options nem divulgação de versão. Isso confirma as correções da seção 1.
+
+### 3.6.1 Etapa 8 – Aprovação + Produção (execução #1)
+| Situação | Evidência | Pendência |
+|---|---|---|
+| O job terminou com sucesso, mas **não houve aprovação humana**. Na execução #1, o environment `producao` não tinha *Required reviewers* (a API de aprovações dessa execução retornou lista vazia), então o job rodou direto. | [print](evidencias/10-deploy-prod.png) | Configurar *Required reviewers* em `producao` e executar de novo |
+| **Deploy real não executado** (`Deploy executado: false`, URL não configurada). O secret `RENDER_DEPLOY_HOOK_URL` não existe. | `relatorio-08-producao/deploy-producao.md` | Configurar o provedor de nuvem e o secret |
 
 ### 3.7 Execução bloqueada por quality gate (demonstração)
 > [a preencher]. Sugestão:
@@ -117,5 +140,7 @@ O enunciado usa Node.js como referência. A aplicação é Flask (Python), entã
 3. **O Semgrep encontrou um padrão inseguro (SQL com f-string) em código que "funcionava".** O valor era constante, mas o padrão se repete facilmente com entrada do usuário. Corrigir o padrão é melhor que justificar a exceção.
 4. **Fixar versões não basta: hashes tornam o build verificável.** `--require-hashes` impede que um pacote adulterado com a mesma versão seja instalado. Fixar as actions pelo SHA aplica a mesma ideia ao próprio pipeline.
 5. **Segurança em tempo de execução precisa de testes.** Cabeçalhos, CSRF e validação de upload só ficam garantidos com testes automatizados que quebram o build se alguém removê-los.
-6. [a preencher após primeira execução do pipeline: tempo médio da esteira]
-7. [a preencher após primeira execução do pipeline: comparação Trivy fs × Trivy image]
+6. **A esteira completa leva cerca de 5 minutos** (5m 9s na execução #1). As etapas mais lentas são o ZAP (~1m 22s) e o build da imagem. É um custo aceitável para rodar a cada push.
+7. **Trivy fs × Trivy image mostram riscos diferentes.** O fs encontrou 0 vulnerabilidades nas dependências declaradas. A imagem trouxe 185 CVEs (45 HIGH), todas no sistema operacional base e nenhuma nas bibliotecas Python. Sem a etapa 6, esse risco ficaria invisível. Como nenhuma HIGH tem correção, o `--ignore-unfixed` evita um gate que não teria como ser atendido.
+8. **O ZAP gerou os achados mais "discutíveis".** Dos 9 avisos, os Medium vêm de decisões de front-end (scripts inline, Google Fonts) e os Sec-Fetch-* são falso positivo por natureza. A ferramenta com mais falsos positivos nesta aplicação foi o ZAP, seguido pelo Semgrep (regra de CSRF do Django).
+9. **Um job "verde" não prova que o controle funcionou.** A etapa 8 passou sem aprovação porque o environment não tinha revisores. Os controles de governança precisam ser conferidos na configuração, não só no status da execução.

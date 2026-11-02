@@ -57,7 +57,10 @@ Os relatórios ficam nos **artifacts** de cada execução, em Actions → execu�
 - **Etapa 4** analisa o que a equipe declara: as dependências Python em `src/requirements.txt`, a configuração do `Dockerfile` e segredos nos arquivos.
 - **Etapa 6** analisa o que vai de fato para produção: a imagem final, com os pacotes do Debian da imagem base `python:3.12-slim`, o interpretador Python e as bibliotecas instaladas.
 - Vulnerabilidades da **imagem base** só aparecem na etapa 6. Por isso o Dockerfile usa imagem `slim`, aplica `apt-get upgrade` e remove o `pip` da imagem final.
-- Comparação antes/depois: [a preencher após primeira execução do pipeline].
+- Resultado da execução #1:
+  - **Etapa 4:** 0 vulnerabilidades nas dependências.
+  - **Etapa 6:** 185 CVEs no SO base Debian 13.7, sendo 45 HIGH, 0 CRITICAL e nenhuma com correção disponível. As bibliotecas Python da imagem têm 0 CVEs.
+  - **Gate:** com `--ignore-unfixed`, o gate da etapa 6 passou.
 
 ## 💻 Como executar localmente
 
@@ -132,7 +135,11 @@ Sem o passo 5, a etapa 8 roda depois da aprovação, mas **não faz deploy**. Is
 
 ## 📸 Print do Resumo da Esteira
 
-[adicionar print após primeira execução]
+Execução #1 ([link](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41516785203)): todas as etapas `success`, 5m 9s, 12 artifacts.
+
+![Resumo da Esteira DevSecOps](docs/evidencias/02-pipeline-summary.png)
+
+> Na execução #1, a etapa 8 aparece como `success` sem ter havido aprovação humana, porque o environment `producao` ainda não tinha *Required reviewers*. O deploy também não foi executado, porque o provedor de nuvem não está configurado. Detalhes em [`docs/observacoes.md`](docs/observacoes.md).
 
 As demais evidências ficam em [`docs/evidencias/`](docs/evidencias/):
 - execução completa;
