@@ -139,7 +139,7 @@ Execução #1 ([link](https://github.com/thalia-ay/security-alert-devsecops/acti
 
 ![Resumo da Esteira DevSecOps](docs/evidencias/02-pipeline-summary.png)
 
-> Na execução #1, a etapa 8 aparece como `success` sem ter havido aprovação humana, porque o environment `producao` ainda não tinha *Required reviewers*. O deploy também não foi executado, porque o provedor de nuvem não está configurado. Detalhes em [`docs/observacoes.md`](docs/observacoes.md).
+> Na execução #1, a etapa 8 aparece como `success` sem ter havido aprovação humana, porque o environment `producao` ainda não tinha *Required reviewers*. Isso foi corrigido: a execução [#9](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41528928961) esperou a aprovação e fez o deploy real no Render. A execução bloqueada pelo quality gate é a [#8](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41527602124). Detalhes em [`docs/observacoes.md`](docs/observacoes.md).
 
 As demais evidências ficam em [`docs/evidencias/`](docs/evidencias/):
 - execução completa;
@@ -152,11 +152,16 @@ As demais evidências ficam em [`docs/evidencias/`](docs/evidencias/):
 
 | Execução | Aprovado por | Data/hora | Decisão | Base da decisão |
 |----------|--------------|-----------|---------|-----------------|
-| [link da execução] | [integrante] | [data] | [aprovado/rejeitado] | [ex.: Gitleaks 0 segredos; Semgrep 0 achados; Trivy fs/image 0 HIGH/CRITICAL; ZAP sem alertas High] |
+| [#5](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41526012116) (manual, commit `a477ace`) | `analu-a` (Ana Luiza) | 02/11/2026 | Aprovado | Etapas 1 a 7 verdes; deploy não executado porque o Render ainda não estava configurado |
+| [#9](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41528928961) (push, commit `d1ebd7c`) | `analu-a` (Ana Luiza) | 02/11/2026, etapa 8 iniciada às 21:42:49 UTC, após a espera pela aprovação | Aprovado | Gitleaks 0 segredos; Semgrep e Trivy fs/image sem bloqueio; ZAP sem alertas High |
 
 ## 🌐 URL de produção
 
-[adicionar URL após o primeiro deploy aprovado]
+**https://security-alert-devsecops.onrender.com/** (Render, plano Free)
+
+Deploy real executado na execução [#9](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41528928961), com a imagem pelo digest `ghcr.io/thalia-ay/security-alert-devsecops@sha256:7707654e666d31bb63367113dff72e895bbbcfaa0942cf591d88aa65d6e5c393`. O health check da esteira (`/login`) retornou "Produção respondendo".
+
+> No plano Free, o serviço hiberna quando fica ocioso, e o primeiro acesso pode levar cerca de 1 minuto. O SQLite é efêmero e é apagado a cada novo deploy ou reinício.
 
 ## 📚 Documentação
 

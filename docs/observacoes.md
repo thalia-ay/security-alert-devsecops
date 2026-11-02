@@ -90,6 +90,13 @@ O ZAP **não** reportou problemas de cookie (Secure/HttpOnly), anti-clickjacking
 | O job terminou com sucesso, mas **não houve aprovação humana**. Na execução #1, o environment `producao` não tinha *Required reviewers* (a API de aprovações dessa execução retornou lista vazia), então o job rodou direto. | [print](evidencias/10-deploy-prod.png) | Configurar *Required reviewers* em `producao` e executar de novo |
 | **Deploy real não executado** (`Deploy executado: false`, URL não configurada). O secret `RENDER_DEPLOY_HOOK_URL` não existe. | `relatorio-08-producao/deploy-producao.md` | Configurar o provedor de nuvem e o secret |
 
+### 3.6.2 Etapa 8 – Pendências resolvidas (execuções #5 e #9)
+| Item | Resultado | Evidência |
+|---|---|---|
+| Aprovação humana | Configurado *Required reviewers* = `analu-a` no environment `producao`. Na [#5](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41526012116) e na [#9](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41528928961), a API de aprovações retorna `analu-a – approved – producao`. Na #9, a etapa 7 terminou às 21:34:30 UTC e a etapa 8 só começou às 21:42:49 UTC, depois da aprovação. | API `GET /actions/runs/{id}/approvals`; tela *Review deployments* |
+| Deploy real | Render (plano Free), serviço a partir da imagem do GHCR. O secret `RENDER_DEPLOY_HOOK_URL` e a variável `PRODUCTION_URL` estão no environment `producao`. Relatório da #9: `Deploy executado: true`, digest `sha256:7707654e…c393`, commit `d1ebd7c`. | `relatorio-08-producao/deploy-producao.md` (#9) |
+| Aplicação em produção | O health check da esteira retornou "Produção respondendo". Em uma checagem independente, `GET /` e `GET /login` em https://security-alert-devsecops.onrender.com/ retornaram **200**, com título "Login - Security Alert" e os cabeçalhos CSP, HSTS, `X-Frame-Options: DENY`, `nosniff` e o cookie `Secure; HttpOnly`, servidos por gunicorn. | Saída do `curl` |
+
 ### 3.7 Execução bloqueada por quality gate (demonstração)
 | Item | Valor |
 |---|---|
@@ -103,7 +110,7 @@ O ZAP **não** reportou problemas de cookie (Secure/HttpOnly), anti-clickjacking
 
 **Efeito colateral observado (lição aprendida):** a execução #6 da `main` (commit `16db8eb`, que só alterava os RMs no README) também falhou na etapa 1, com o mesmo achado. O motivo foi este: com `fetch-depth: 0`, o checkout traz todas as branches, e `gitleaks git .` varre o histórico de **todas** as refs. Por isso a branch de teste, que existia naquele momento, contaminou a varredura da `main`. Esse comportamento é conservador: um segredo commitado em qualquer branch do repositório público já está exposto. A correção foi apagar a branch de teste depois de registrar a evidência. Em um segredo real, o procedimento seria revogar a credencial **antes** de qualquer limpeza.
 
-**Correção:** a branch `teste-quality-gate` foi apagada, e a execução seguinte da `main` deve voltar a passar na etapa 1. O resultado dessa execução precisa ser conferido no Actions.
+**Correção:** a branch `teste-quality-gate` foi apagada, e a execução seguinte da `main`, a [#9](https://github.com/thalia-ay/security-alert-devsecops/actions/runs/41528928961) (commit `d1ebd7c`), passou na etapa 1 e em todas as demais.
 
 ---
 
