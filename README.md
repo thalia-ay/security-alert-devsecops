@@ -10,10 +10,10 @@ Este repositório leva a aplicação até a produção por uma **esteira DevSecO
 
 | Nome | RM |
 |------|----|
-| Ana Luiza | RM_PLACEHOLDER |
-| Maria Eduarda | RM_PLACEHOLDER |
-| Pedro Henrique | RM_PLACEHOLDER |
-| Thalia Aiko | RM_PLACEHOLDER |
+| Ana Luiza | RM565711 |
+| Maria Eduarda | RM564771 |
+| Pedro Henrique | RM565184 |
+| Thalia Aiko | RM561758 |
 
 ## 🔄 Diagrama da esteira
 
